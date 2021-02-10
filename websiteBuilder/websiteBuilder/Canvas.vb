@@ -473,8 +473,7 @@ Public Class Canvas
         'page.Close()
         'page.Dispose()
 
-        'page =  new FileStream("index.html", FileMode.Create)
-        'writer = New StreamWriter(page)
+        
 
 
     End Sub
