@@ -83,6 +83,12 @@ Public Class Canvas
         cssWriter.WriteLine("background-color: #ffffff;")
         cssWriter.WriteLine("}")
 
+
+        'body{
+        'font-family: 'Roboto', arial, sans-serif, serif;
+        'background-color: #ffffff;
+        '}
+
         pageWriter.Close()
         cssWriter.Close()
     End Sub
@@ -447,17 +453,30 @@ Public Class Canvas
         Dim htmlContents = readAllHTML() 'The list of all html contents
         Dim cssContents = readAllCSS() 'The list of all css contents
 
-        For i = 0 To htmlContents.length - 1 'Go through html list
+        For i = 0 To htmlContents.count() - 1 'Go through html list
             If htmlContents(i).contains(objectName) Then 'If its the object
-                htmlContents(i).remove() 'Remove it 
+                htmlContents.removeAt(i) 'Remove it 
+                Exit For 'Stop looping because its removed in html
             End If
+
+
         Next
 
-        For i = 0 To cssContents.length - 1 'Go through css list
+        For i = 0 To cssContents.count() - 1 'Go through css list
             If cssContents(i).contains(objectName) Then 'If its the object
-                htmlContents(i).remove() 'TO DO WIP 
+                While cssContents(i) <> "}" 'Remove til end of class
+                    cssContents.removeAt(i) 'remove line
+                End While
+
+                cssContents.removeAt(i) 'remove extra "}" because it stops when detected
+                Exit For 'Stop looping because its removed in css
             End If
+
+
         Next
+
+        writeAllHtml(htmlContents) 'Write the contents into the files using the list contents
+        writeAllCss(cssContents)
 
 
 
@@ -473,7 +492,7 @@ Public Class Canvas
         'page.Close()
         'page.Dispose()
 
-        
+
 
 
     End Sub
@@ -506,10 +525,35 @@ Public Class Canvas
         Next
         cssWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & "style.css", False) 'Open writer, while also overwriting 
 
+        writeAllCss(cssContents)
+    End Sub
+
+
+
+    Sub writeAllHtml(ByVal htmlContents)
+        closeAllFiles()
+        pageWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & pageName, False) 'Open writer, while also overwriting 
+
+        For Each line In htmlContents  'Rewrite everything back into css, including the change
+            pageWriter.WriteLine(line)
+        Next
+
+        pageWriter.Close()
+    End Sub
+
+
+    Sub writeAllCss(ByVal cssContents)
+        closeAllFiles()
+        cssWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & "style.css", False) 'Open writer, while also overwriting 
+
         For Each line In cssContents  'Rewrite everything back into css, including the change
             cssWriter.WriteLine(line)
         Next
+
+        cssWriter.Close()
     End Sub
+
+
 
 
 
