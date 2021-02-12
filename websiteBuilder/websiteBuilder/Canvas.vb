@@ -169,7 +169,15 @@ Public Class Canvas
     End Sub
     Private Sub MyMouseUp(ByVal sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles createdObj.MouseUp  'If mouse lets go 
         dragging = False 'Set to false 
-        writeToHtml(sender)
+        If moveMode = True Then 'When they let go on movemode
+            writeToHtml(sender) 'Write object to html 
+
+        ElseIf resizeMode = True And onCanvas.Contains(sender) Then 'If resized and on canvas, change the css size
+            cssChangeSize(sender)
+        End If
+
+
+
     End Sub
 
     Private Sub MyMouseClick(ByVal sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles createdObj.Click 'If mouse click 
@@ -405,14 +413,15 @@ Public Class Canvas
 
                     writeToCss(objectName, currentObj.Width, currentObj.Height, x, y) 'Write the class
 
-
-
-
                 ElseIf objectName.Contains("Heading") Then 'If heading element
                     Dim headingType As String = objectName(objectName.Length - 1) 'Get last character, which is the type of heading (1 - 6)
                     pageWriter.WriteLine("<h" & headingType & "class='" & objectName & "'>" & currentObj.Text & "</h" & headingType & ">")
 
                 End If
+
+            Else 'Else, that it is on the panel but its already been written in html, it means position has been changed. 
+
+
 
             End If
         Else 'Else, the object is not in the canvas panel, remove the object from html and css
@@ -448,6 +457,33 @@ Public Class Canvas
         End If
 
     End Sub
+
+    Sub cssChangeSize(ByVal currentObj) 'Changes size in css, called when they resize an object thats in the panel canvas
+        Dim cssContents = readAllCSS() 'The list of all css contents
+        Dim objectName = currentObj.Name
+
+        Dim sizeX = currentObj.Width 'Get the new dimensions
+        Dim sizeY = currentObj.Height
+
+
+        For i = 0 To cssContents.count() - 1 'Go through css list
+            If cssContents(i).contains(objectName) Then 'If its the object
+                cssContents(i + 1) = "width:" & sizeX & "px;" 'Change dimensions
+                cssContents(i + 2) = "height:" & sizeY & "px;"
+                Exit For 'Stop looping because its removed in css
+            End If
+
+
+        Next
+        writeAllCss(cssContents) 'Write all back into file
+    End Sub
+
+
+    Sub cssChangePosition(ByVal currentObj) 'Change position on canvas in css, called when moved while on canvas
+
+
+    End Sub
+
 
     Sub removeObjFromFiles(ByVal objectName) 'This sub will remove the object from the file
         Dim htmlContents = readAllHTML() 'The list of all html contents
