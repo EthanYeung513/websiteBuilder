@@ -1,4 +1,4 @@
-## WORK IN PROGRESS
+# WORK IN PROGRESS
 
 ### Website-builder
 
@@ -11,7 +11,7 @@ Visual basic
 Microsoft Access
 
 
-#### Current functionality
+### Current functionality
 
 Can login, register, and reset password (using a code that gets sent to your email).
 
