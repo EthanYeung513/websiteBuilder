@@ -184,6 +184,12 @@ Public Class Canvas
 
     End Sub
 
+    Private Sub MyTextChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles createdObj.TextChanged 'If text changed on canvas
+        If onCanvas.Contains(sender) Then 'If panel contains the object
+            htmlTextChange(sender) 'Change the text in html
+        End If
+    End Sub
+
 
     'Code for spawning
 
@@ -227,6 +233,7 @@ Public Class Canvas
             Dim tempText As New RichTextBox  'Instantiates new paragraph
 
             tempText.Name = "Para" + paraCounter.ToString  'Makes name the photo plus the current picbox counter
+            tempText.Text = "Type here"
             tempText.AutoSize = True
 
             checkUiOverflow()  'Check if objects goes outside of panel
@@ -243,7 +250,8 @@ Public Class Canvas
 
             Dim tempText As New RichTextBox  'Instantiates new textbox
 
-            tempText.Name = headingCounter.ToString & "Heading" & headSelectorCmb.Text  'Makes name the heading counter and the heading size they chose
+            tempText.Name = "Heading" & headingCounter.ToString & "-" & headSelectorCmb.Text  'Makes name the heading counter and the heading size they chose
+            tempText.Text = "Type here"
             tempText.Multiline = True
 
             checkUiOverflow()  'Check if objects goes outside of panel
@@ -265,12 +273,15 @@ Public Class Canvas
         moveableObj.Top = y      'Set location
         moveableObj.Left = x
 
+        moveableObj.BackColor = canvasPnl.BackColor 'Change the background of obj to match the panel back
 
 
-        AddHandler moveableObj.MouseDown, AddressOf Me.MyMouseDown  'Adds action to the picbox
+        AddHandler moveableObj.MouseDown, AddressOf Me.MyMouseDown  'Adds action to the objects
         AddHandler moveableObj.MouseMove, AddressOf Me.MyMouseMove
         AddHandler moveableObj.MouseUp, AddressOf Me.MyMouseUp
         AddHandler moveableObj.MouseClick, AddressOf Me.MyMouseClick
+
+        AddHandler moveableObj.TextChanged, AddressOf Me.MyTextChanged
 
         y += 60  'Change coords of next object
 
@@ -286,32 +297,35 @@ Public Class Canvas
     End Sub
 
     Private Sub undoObject() 'Removes last obj in
-        If objectStack.Count > 0 Then   'If objectStack not empty
-            Dim objType As String = objectStack(0).Name() 'Get name of obj on top of stack
-            objectStack(0).Dispose()    'Destroy the obj on top of stack
-            objectStack.Pop() 'Delete the obj of top of the stack
-            y -= 60
-            allowAdd = True  'Allow user to add more objects
 
-            If objType.Contains("Para") Then  'If the obj was a paragraph, decrememnt counter of paraCounter
-                paraCounter -= 1
-            ElseIf objType.Contains("Pic") Then 'If the obj was a picBox, decrememnt counter of picCounter
-                picCounter -= 1
-            ElseIf objType.Contains("Heading") Then 'If the obj was a heading, decrememnt counter of headingCounter
-                headingCounter -= 1
-            ElseIf objType.Contains("Anchor") Then 'If the obj was a anchor, decrememnt counter of anchorCounter
-                anchorCounter -= 1
-            End If
-            totalCounter -= 1  'Decrement total amount of objects counter
-        Else
-            MessageBox.Show("Cannot undo no objects")
+        Dim objType As String = objectStack(0).Name() 'Get name of obj on top of stack
+        objectStack(0).Dispose()    'Destroy the obj on top of stack
+        objectStack.Pop() 'Delete the obj of top of the stack
+        y -= 60
+        allowAdd = True  'Allow user to add more objects
+
+        If objType.Contains("Para") Then  'If the obj was a paragraph, decrememnt counter of paraCounter
+            paraCounter -= 1
+        ElseIf objType.Contains("Pic") Then 'If the obj was a picBox, decrememnt counter of picCounter
+            picCounter -= 1
+        ElseIf objType.Contains("Heading") Then 'If the obj was a heading, decrememnt counter of headingCounter
+            headingCounter -= 1
+        ElseIf objType.Contains("Anchor") Then 'If the obj was a anchor, decrememnt counter of anchorCounter
+            anchorCounter -= 1
         End If
+        totalCounter -= 1  'Decrement total amount of objects counter
+  
     End Sub
 
 
 
     Private Sub undoBtn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles undoBtn.Click 'Clicks the undo button
-        undoObject()
+        Try 'Will create stack underflow if trying to delete no objects
+            removeObjFromFiles(objectStack(0).Name) 'Delete from files
+            undoObject() 'Delete object from the panel
+        Catch
+            MessageBox.Show("Cannot undo no objects")
+        End Try
     End Sub
 
     Private Sub Form1_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles MyBase.KeyDown
@@ -319,6 +333,8 @@ Public Class Canvas
         If ((e.KeyCode = Keys.Z) AndAlso e.Control) Then
             MsgBox("test")
             undoObject()
+
+
         End If
     End Sub
 
@@ -379,10 +395,16 @@ Public Class Canvas
 
         Dim objectName As String = currentObj.Name 'Set the name of the object
 
-        Dim x As Integer = currentObj.Location.X  'Get coords of the current object that just moved
-        Dim y As Integer = currentObj.Location.Y
+        Dim locX As Integer = currentObj.Location.X  'Get coords of the current object that just moved
+        Dim locY As Integer = currentObj.Location.Y
 
-        If x >= canvasPnl.Location.X And y >= canvasPnl.Location.Y Then   'Check if object is in panel2, if it is, write to text file
+        Dim newLocX As Integer = (locX - 280) * 1.9 'Set up the location and size so it appears the same on the page (used for css)
+        Dim newLocY As Integer = (locY - 40) * 1.9
+        Dim newSizeX = currentObj.Width * 2
+        Dim newSizeY = currentObj.Height * 2
+
+
+        If locX >= canvasPnl.Location.X And locY >= canvasPnl.Location.Y Then   'Check if object is in panel2, if it is, write to text file
             If onCanvas.Contains(currentObj) = False Then 'If the object is not already on canvas, write to text html
                 onCanvas.Add(currentObj)  'Add currentObj to onCanvas 
 
@@ -394,38 +416,33 @@ Public Class Canvas
 
 
 
-                x = x + 150 'Set up the locations so it appears on the right on the page
-                y = y + 150
-
-
-
 
                 If objectName.Contains("Pic") Then  'If it's a picturebox
                     Dim picLocation As String = currentObj.ImageLocation  'Get the file location 
 
                     pageWriter.WriteLine("<img src='" & picLocation & "' class ='" & objectName & "' " & "alt='test'>") 'write an image
 
-                    writeToCss(objectName, currentObj.Width, currentObj.Height, x, y) 'Write the class
+                    writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY) 'Write the class
 
 
                 ElseIf objectName.Contains("Para") Then 'If paragraph element
                     pageWriter.WriteLine("<p class='" & objectName & "'>" & currentObj.Text & "</p>") 'Write the html
 
-                    writeToCss(objectName, currentObj.Width, currentObj.Height, x, y) 'Write the class
+                    writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY) 'Write the class
 
                 ElseIf objectName.Contains("Heading") Then 'If heading element
                     Dim headingType As String = objectName(objectName.Length - 1) 'Get last character, which is the type of heading (1 - 6)
-                    pageWriter.WriteLine("<h" & headingType & "class='" & objectName & "'>" & currentObj.Text & "</h" & headingType & ">")
+                    pageWriter.WriteLine("<h" & headingType & " class='" & objectName & "'>" & currentObj.Text & "</h" & headingType & ">")
+
+                    writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY) 'Write the class
 
                 End If
 
             Else 'Else, that it is on the panel but its already been written in html, it means position has been changed. 
-
-
-
+                cssChangePosition(objectName, newLocX, newLocY)
             End If
         Else 'Else, the object is not in the canvas panel, remove the object from html and css
-
+            onCanvas.Remove(currentObj) 'Remove object from the list
             removeObjFromFiles(objectName) 'Remove from html and css
 
         End If
@@ -435,28 +452,26 @@ Public Class Canvas
     End Sub
 
     Sub writeToCss(ByVal objectName, ByVal sizeX, ByVal sizeY, ByVal locX, ByVal locY) 'Writing the classes
+
+        cssWriter.WriteLine("." & objectName & "{")  'Writing css class, these are the generic properties each obj will have
+        cssWriter.WriteLine("left: " & locX & "px;")
+        cssWriter.WriteLine("top: " & locY & "px;")
+        cssWriter.WriteLine("width:" & sizeX & "px;")
+        cssWriter.WriteLine("height:" & sizeY & "px;")
+        cssWriter.WriteLine("position: absolute;")
+
         If objectName.Contains("Pic") Then  'If it's a picturebox
 
-            cssWriter.WriteLine("." & objectName & "{")  'Writing css class
-            cssWriter.WriteLine("width:" & sizeX & "px;")
-            cssWriter.WriteLine("height:" & sizeY & "px;")
-            cssWriter.WriteLine("left: " & locX & "px;")
-            cssWriter.WriteLine("top: " & locY & "px;")
-            cssWriter.WriteLine("position: absolute;")
-            cssWriter.WriteLine("}")
 
         ElseIf objectName.Contains("Para") Then 'If paragraph element
-            cssWriter.WriteLine("." & objectName & "{")  'Writing css class
             cssWriter.WriteLine("font-size: " & "15px;")
-            cssWriter.WriteLine("left: " & locX & "px;")
-            cssWriter.WriteLine("top: " & locY & "px;")
-            cssWriter.WriteLine("position: absolute;")
-            cssWriter.WriteLine("}")
-
 
         End If
 
+        cssWriter.WriteLine("}")
     End Sub
+
+
 
     Sub cssChangeSize(ByVal currentObj) 'Changes size in css, called when they resize an object thats in the panel canvas
         Dim cssContents = readAllCSS() 'The list of all css contents
@@ -468,9 +483,35 @@ Public Class Canvas
 
         For i = 0 To cssContents.count() - 1 'Go through css list
             If cssContents(i).contains(objectName) Then 'If its the object
-                cssContents(i + 1) = "width:" & sizeX & "px;" 'Change dimensions
-                cssContents(i + 2) = "height:" & sizeY & "px;"
-                Exit For 'Stop looping because its removed in css
+                For j = i To cssContents.count() - 1 'Search for the location properties in css 
+                    If cssContents(j).contains("width:") Then 'If it has seen a width property
+                        cssContents(j) = "width:" & sizeX & "px;" 'Change dimensions
+                        cssContents(j + 1) = "height:" & sizeY & "px;"
+                        Exit For 'Stop looping because its removed in css
+                        Exit For 'Exit both loops
+                    End If
+                Next
+            End If
+
+        Next
+        writeAllCss(cssContents) 'Write all back into file
+    End Sub
+
+
+    Sub cssChangePosition(ByVal objectName, ByRef locX, ByVal locY) 'Change position on canvas in css, called when moved while on canvas
+
+        Dim cssContents = readAllCSS() 'The list of all css contents
+
+        For i = 0 To cssContents.count() - 1 'Go through css list
+            If cssContents(i).contains(objectName) Then 'If its the object
+                For j = i To cssContents.count() - 1 'Search for the location properties in css 
+                    If cssContents(j).contains("left:") Then 'If it has seen a left property
+                        cssContents(j) = "left: " & locX & "px;" 'Change location
+                        cssContents(j + 1) = "top: " & locY & "px;"
+                        Exit For 'Stop looping because its removed in css
+                        Exit For 'Exit both loops
+                    End If
+                Next
             End If
 
 
@@ -478,11 +519,6 @@ Public Class Canvas
         writeAllCss(cssContents) 'Write all back into file
     End Sub
 
-
-    Sub cssChangePosition(ByVal currentObj) 'Change position on canvas in css, called when moved while on canvas
-
-
-    End Sub
 
 
     Sub removeObjFromFiles(ByVal objectName) 'This sub will remove the object from the file
@@ -511,10 +547,32 @@ Public Class Canvas
 
         Next
 
+
+
         writeAllHtml(htmlContents) 'Write the contents into the files using the list contents
         writeAllCss(cssContents)
+    End Sub
 
 
+    Sub htmlTextChange(ByVal obj) 'Called when they change text while in html
+        Dim htmlContents = readAllHTML() 'Load all html contents into page
+        Dim objectText = obj.Text
+        Dim objectName = obj.Name
+
+        For i = 0 To htmlContents.count() - 1 'Go through html list
+            If htmlContents(i).contains(objectName) Then 'If its the object
+                If objectName.Contains("Para") Then 'If its a paragraph
+                    htmlContents(i) = "<p class='" & objectName & "'>" & objectText & "</p>"
+                ElseIf objectName.Contains("Heading") Then
+                    Dim headingType As String = objectName(objectName.Length - 1) 'Get last character, which is the type of heading (1 - 6)
+                    htmlContents(i) = "<h" & headingType & " class='" & objectName & "'>" & objectText & "</h" & headingType & ">"
+
+                End If
+                Exit For 'Stop looping because text changed in html
+            End If
+        Next
+
+        writeAllHtml(htmlContents) 'Write changes into html
 
     End Sub
 

@@ -59,7 +59,7 @@ Partial Class Canvas
         Me.canvasPnl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.canvasPnl.Location = New System.Drawing.Point(295, 66)
         Me.canvasPnl.Name = "canvasPnl"
-        Me.canvasPnl.Size = New System.Drawing.Size(1004, 528)
+        Me.canvasPnl.Size = New System.Drawing.Size(1054, 528)
         Me.canvasPnl.TabIndex = 2
         '
         'btn_save
@@ -233,7 +233,7 @@ Partial Class Canvas
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1325, 670)
+        Me.ClientSize = New System.Drawing.Size(1380, 670)
         Me.Controls.Add(Me.lbl_mainMenu)
         Me.Controls.Add(Me.lbl_pageName)
         Me.Controls.Add(Me.lbl_webName)
