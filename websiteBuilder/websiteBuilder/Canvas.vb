@@ -266,7 +266,7 @@ Public Class Canvas
 
             'Change the font size depending the heading type
             Dim i As Integer = 1  'Used to loop to the headingType
-            Dim fontSize = 25 'H1 size will = 30, and decrement by each heading 
+            Dim fontSize = 25 'H1 size will = 25, and decrement by each heading 
             headingType = headingType(1)
             While headingType <> i  'Loop until heading type is the same as i
                 fontSize -= 3 'Decrement font
@@ -388,8 +388,6 @@ Public Class Canvas
         If ((e.KeyCode = Keys.Z) AndAlso e.Control) Then
             MsgBox("test")
             undoObject()
-
-
         End If
     End Sub
 
@@ -991,7 +989,7 @@ Public Class Canvas
                         Case 8
                             objStorage(objCounter).text = (objectArray(i).ItemArray(j)).ToString
                         Case 9
-                            objStorage(objCounter).fontSize = (objectArray(i).ItemArray(j)).ToString
+                            objStorage(objCounter).fontSize = objectArray(i).ItemArray(j)
                     End Select
                 Next
 
@@ -999,7 +997,6 @@ Public Class Canvas
             myConnection.Close()
 
         Catch ex As Exception    'If error, it means object not found
-            MsgBox("Object not found")
             myConnection.Close()
         End Try
 
@@ -1020,6 +1017,8 @@ Public Class Canvas
         Dim fileLoc As String
         Dim text As String
         Dim fontSize As Integer
+
+        Dim tempObj
 
         For i = 0 To amountOfOjbs 'Go through every object in dictionary
 
@@ -1050,16 +1049,18 @@ Public Class Canvas
                 configureObjects(tempPara, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
 
             ElseIf objName.Contains("Heading") Then
-                Dim tempPara As New RichTextBox  'Instantiates new paragraph
-                tempPara.Name = objName 'Set name
-                tempPara.Font = New Font(tempPara.Font.FontFamily, fontSize) 'Change font size
-                tempPara.Text = text 'Set text in textbox
+                Dim tempHeading As New RichTextBox  'Instantiates new paragraph
+                tempHeading.Name = objName 'Set name
+                tempHeading.Font = New Font(tempHeading.Font.FontFamily, fontSize) 'Change font size
+                tempHeading.Text = text 'Set text in textbox
 
-                configureObjects(tempPara, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
+                configureObjects(tempHeading, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
             End If
 
+            If locX >= canvasPnl.Location.X And locY >= canvasPnl.Location.Y Then 'If object is on the canvas panel
+                onCanvas.Add(objectStack(0)) 'Add the latest added onto the canvas panel list
 
-
+            End If
         Next
 
     End Sub
