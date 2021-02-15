@@ -2,6 +2,8 @@
 
 ### Website-builder
 
+[![HitCount](http://hits.dwyl.com/EthanYeung513/websiteBuilder.svg)](http://hits.dwyl.com/EthanYeung513/websiteBuilder)
+
 
 This project will allow users to create a HTML and CSS through a drag and drop menu in a windows application. 
 
