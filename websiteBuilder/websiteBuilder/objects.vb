@@ -1,11 +1,17 @@
-﻿Public Class general   'The attributes that all objects will have
-    Public locX As String 'The location that it will be generated
-    Public locY As String
+﻿Public Class dbObj   'The attributes that all objects will have
 
-    Public sizeX As String 'The size
-    Public sizeY As String
+    Public objName As String 'The name of the object
 
+    Public locX As Integer 'The location that it will be generated
+    Public locY As Integer
 
+    Public sizeX As Integer 'The size
+    Public sizeY As Integer
+
+    Public fileLoc As String 'An image/anchor would have this
+
+    Public text As String 'Headding, paragraph and anchor attribute
+    Public fontSize As Integer
 End Class
 
 

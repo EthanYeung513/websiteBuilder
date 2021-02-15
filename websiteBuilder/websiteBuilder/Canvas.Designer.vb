@@ -34,7 +34,6 @@ Partial Class Canvas
         Me.makeHeadingBtn = New System.Windows.Forms.Button()
         Me.colourBtn = New System.Windows.Forms.Button()
         Me.moveBtn = New System.Windows.Forms.Button()
-        Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
         Me.ColorDialog1 = New System.Windows.Forms.ColorDialog()
         Me.btn_openBrowser = New System.Windows.Forms.Button()
         Me.lbl_username = New System.Windows.Forms.Label()
@@ -173,10 +172,6 @@ Partial Class Canvas
         Me.moveBtn.Text = "Move (ON)"
         Me.moveBtn.UseVisualStyleBackColor = False
         '
-        'OpenFileDialog1
-        '
-        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
-        '
         'btn_openBrowser
         '
         Me.btn_openBrowser.BackColor = System.Drawing.Color.LightBlue
@@ -257,7 +252,6 @@ Partial Class Canvas
     Friend WithEvents resizeBtn As System.Windows.Forms.Button
     Friend WithEvents toolboxPnl As System.Windows.Forms.Panel
     Friend WithEvents moveBtn As System.Windows.Forms.Button
-    Friend WithEvents OpenFileDialog1 As System.Windows.Forms.OpenFileDialog
     Friend WithEvents colourBtn As System.Windows.Forms.Button
     Friend WithEvents ColorDialog1 As System.Windows.Forms.ColorDialog
     Friend WithEvents btn_openBrowser As System.Windows.Forms.Button

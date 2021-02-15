@@ -44,7 +44,7 @@ Public Class newWebsite
             myConnection.Open()
             Dim query As String = "INSERT INTO [websites] ([UserID], [WebsiteName]) VALUES (" _
                                   & "'" & userID & "'," _
-                                  & "'" & websiteName & "');"
+                                   & "'" & websiteName & "');"
             Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
             command.ExecuteNonQuery()
             command.Dispose()
@@ -70,9 +70,14 @@ Public Class newWebsite
             connectString = provider & dataFile
             myConnection.ConnectionString = connectString
             myConnection.Open()
-            Dim query As String = "INSERT INTO [html] ([WebsiteID], [Filename]) VALUES (" _
+            Dim query As String = "INSERT INTO [html] ([WebsiteID], [Filename], [ImageCount], [ParagraphCount], [HeadingCount], [AnchorCount]) VALUES (" _
                                   & "'" & websiteID & "'," _
-                                  & "'" & pageName & "');"     'Filename is index because it's the first page 
+                                  & "'" & pageName & "'," _
+                                  & "'" & 0 & "'," _
+                                  & "'" & 0 & "'," _
+                                  & "'" & 0 & "'," _
+                                  & "'" & 0 & "');"
+            'Inserting 0's into the counter
             Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
             command.ExecuteNonQuery()
             command.Dispose()

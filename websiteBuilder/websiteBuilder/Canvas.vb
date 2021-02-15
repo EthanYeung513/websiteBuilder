@@ -5,12 +5,9 @@ Public Class Canvas
     Dim allowAdd As Boolean = True  'Boolean which signals if user can add more objects
 
 
-
     Dim allModes As New Stack(Of Boolean)  'Only allow user to toggle a mode if all modes are off stack
     Dim resizeMode As Boolean = False 'If true, allow user to change size
     Dim moveMode As Boolean = True 'If true , allow user to move objects
-
-
 
 
     Public prevPos As Point   'Position before moving
@@ -20,10 +17,10 @@ Public Class Canvas
 
     Dim onCanvas As New List(Of Object) 'Holds objects which are on the canvas
 
-    Dim picCounter As Integer = -1  'Counter for amount of picboxes
-    Dim paraCounter As Integer = -1 'Counter for amount of paragrahs 
-    Dim headingCounter As Integer = -1 'Counter for amount of headings
-    Dim anchorCounter As Integer = -1 'Counter for amount of anchors
+    Dim picCounter As Integer   'Counter for amount of picboxes
+    Dim paraCounter As Integer  'Counter for amount of paragrahs 
+    Dim headingCounter As Integer 'Counter for amount of headings
+    Dim anchorCounter As Integer  'Counter for amount of anchors
 
 
 
@@ -32,7 +29,7 @@ Public Class Canvas
 
 
 
-    Dim x = 220    'Coords of picturebox, will add so location wont be the same
+    Dim x = 220    'Coords of the object, will add so location wont be the same
     Dim y = 45
 
 
@@ -56,6 +53,10 @@ Public Class Canvas
     Private Sub canvas_Show(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Shown  'On load
 
         setLastWorkedOn() 'Update the previous website worked on so it can be loaded
+
+        getCurrentCounters() 'Set the counters 
+
+        loadObjects() 'Load all objects from previous edits onto the form
 
         lbl_username.Text = username & " > "  'Change the label text to show the info of the website
         lbl_webName.Text = websiteName & " > "
@@ -172,10 +173,14 @@ Public Class Canvas
         If moveMode = True Then 'When they let go on movemode
             writeToHtml(sender) 'Write object to html 
 
-        ElseIf resizeMode = True And onCanvas.Contains(sender) Then 'If resized and on canvas, change the css size
-            cssChangeSize(sender)
-        End If
+        ElseIf resizeMode = True Then 'If resized and on canvas, change the css and db size
+            dbChangeObjInfo(sender, "Size") 'Change size in db
 
+            If onCanvas.Contains(sender) = True Then
+                cssChangeSize(sender) 'Change size in css if on panel
+
+            End If
+        End If
 
 
     End Sub
@@ -188,6 +193,8 @@ Public Class Canvas
         If onCanvas.Contains(sender) Then 'If panel contains the object
             htmlTextChange(sender) 'Change the text in html
         End If
+
+        dbChangeObjInfo(sender, "Text") 'Change the text in db
     End Sub
 
 
@@ -206,19 +213,24 @@ Public Class Canvas
             Dim picError As Boolean = True  'If picError stays true, then there's an error 
             While picError = True  'Keep attempting to choose a pic until no error
                 Try  'If there's an error it won't crash
-                    OpenFileDialog1.ShowDialog()
 
-                    Dim tempFileLocation = OpenFileDialog1.FileName '
+                    Dim imageSelector As OpenFileDialog = New OpenFileDialog
+                    imageSelector.ShowDialog()
+
+
+                    Dim tempFileLocation = imageSelector.FileName '
 
 
                     tempPic.Load(tempFileLocation) 'Set the pic to what they choose
+                    imageSelector.Dispose()
+
                     picError = False
                 Catch ex As Exception
                     Exit Sub 'Exit creating the image
                 End Try
             End While
             checkUiOverflow()
-            configureObjects(tempPic)
+            configureObjects(tempPic, True, x, y, 50, 50)
 
         End If
 
@@ -230,14 +242,14 @@ Public Class Canvas
             paraCounter += 1  'Increment amount of para counter
             totalCounter += 1 'Increment total amount of objects
 
-            Dim tempText As New RichTextBox  'Instantiates new paragraph
+            Dim tempPara As New RichTextBox  'Instantiates new paragraph
 
-            tempText.Name = "Para" + paraCounter.ToString  'Makes name the photo plus the current picbox counter
-            tempText.Text = "Type here"
-            tempText.AutoSize = True
+            tempPara.Name = "Para" + paraCounter.ToString  'Makes name the photo plus the current picbox counter
+
+            tempPara.AutoSize = True
 
             checkUiOverflow()  'Check if objects goes outside of panel
-            configureObjects(tempText)  'Adds functionality
+            configureObjects(tempPara, True, x, y, 50, 50)  'Adds functionality
 
         End If
 
@@ -248,30 +260,58 @@ Public Class Canvas
             headingCounter += 1  'Increment amount of heading ccounter
             totalCounter += 1 'Increment total amount of objects
 
-            Dim tempText As New RichTextBox  'Instantiates new textbox
+            Dim tempHeading As New RichTextBox  'Instantiates new textbox
+            Dim headingType As String = headSelectorCmb.Text
+            tempHeading.Name = "Heading" & headingCounter.ToString & "-" & headingType 'Makes name the heading counter and the heading size they chose
 
-            tempText.Name = "Heading" & headingCounter.ToString & "-" & headSelectorCmb.Text  'Makes name the heading counter and the heading size they chose
-            tempText.Text = "Type here"
-            tempText.Multiline = True
+            'Change the font size depending the heading type
+            Dim i As Integer = 1  'Used to loop to the headingType
+            Dim fontSize = 25 'H1 size will = 30, and decrement by each heading 
+            headingType = headingType(1)
+            While headingType <> i  'Loop until heading type is the same as i
+                fontSize -= 3 'Decrement font
+                i += 1
+            End While
+            tempHeading.Font = New Font(tempHeading.Font.FontFamily, fontSize) 'Change font size
+
+
+            tempHeading.Multiline = True
 
             checkUiOverflow()  'Check if objects goes outside of panel
-            configureObjects(tempText)  'Adds functionality
+            configureObjects(tempHeading, True, x, y, 50, 50)  'Adds functionality
 
         End If
     End Sub
 
 
-    Private Sub makeAnchorButton_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles makeAnchorButton.Click
 
+
+
+
+    Private Sub makeAnchorButton_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles makeAnchorButton.Click
+        If allowAdd = True Then
+            anchorCounter += 1  'Increment amount of anchors counter
+            totalCounter += 1 'Increment total amount of objects
+
+            Dim tempAnchor As New RichTextBox  'Instantiates new textbox
+
+            tempAnchor.Name = "Anchor" & anchorCounter.ToString   'Makes name the heading counter and the heading size they chose
+
+            tempAnchor.Multiline = True
+
+            checkUiOverflow()  'Check if objects goes outside of panel
+            configureObjects(tempAnchor, True, x, y, 50, 50)  'Adds functionality
+
+        End If
     End Sub
 
-    Private Sub configureObjects(ByVal moveableObj As Control)  'Add handlers and adding object to the stack
+    Private Sub configureObjects(ByVal moveableObj As Control, ByVal newObj As Boolean, ByVal locX As Integer, ByVal locY As Integer, ByVal sizeX As Integer, ByVal sizeY As Integer)  'Add handlers and adding object to the stack
 
         moveableObj.AutoSize = False
-        moveableObj.Width = 50
-        moveableObj.Height = 50
-        moveableObj.Top = y      'Set location
-        moveableObj.Left = x
+        moveableObj.Width = sizeX
+        moveableObj.Height = sizeY
+        moveableObj.Top = locY     'Set location
+        moveableObj.Left = locX
 
         moveableObj.BackColor = canvasPnl.BackColor 'Change the background of obj to match the panel back
 
@@ -281,13 +321,22 @@ Public Class Canvas
         AddHandler moveableObj.MouseUp, AddressOf Me.MyMouseUp
         AddHandler moveableObj.MouseClick, AddressOf Me.MyMouseClick
 
-        AddHandler moveableObj.TextChanged, AddressOf Me.MyTextChanged
+        AddHandler moveableObj.TextChanged, AddressOf Me.MyTextChanged 'calls sub when text changed
 
-        y += 60  'Change coords of next object
+        y += 60  'Change coords of next new object
 
         Me.Controls.Add(moveableObj)
         moveableObj.BringToFront()
+
         objectStack.Push(moveableObj)   'Add object to stack
+
+        If newObj = True Then 'Only do these when the object is new and not loaded from db
+            dbWriteObj(moveableObj) 'Write the obj to database if not in db already
+
+            dbUpdateCounters() 'Update counters in the db
+        End If
+
+       
     End Sub
     Private Sub checkUiOverflow()  'If going over panel, stop them from creating more
         If y > 520 Then
@@ -314,7 +363,7 @@ Public Class Canvas
             anchorCounter -= 1
         End If
         totalCounter -= 1  'Decrement total amount of objects counter
-  
+
     End Sub
 
 
@@ -322,7 +371,13 @@ Public Class Canvas
     Private Sub undoBtn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles undoBtn.Click 'Clicks the undo button
         Try 'Will create stack underflow if trying to delete no objects
             removeObjFromFiles(objectStack(0).Name) 'Delete from files
+            dbRemoveObj(objectStack(0).Name) 'Delete from db
+
             undoObject() 'Delete object from the panel
+
+            dbUpdateCounters() ''Update counters in the db
+
+
         Catch
             MessageBox.Show("Cannot undo no objects")
         End Try
@@ -400,8 +455,8 @@ Public Class Canvas
 
         Dim newLocX As Integer = (locX - 280) * 1.9 'Set up the location and size so it appears the same on the page (used for css)
         Dim newLocY As Integer = (locY - 40) * 1.9
-        Dim newSizeX = currentObj.Width * 2
-        Dim newSizeY = currentObj.Height * 2
+        Dim newSizeX = currentObj.Width * 1.6
+        Dim newSizeY = currentObj.Height * 1.6
 
 
         If locX >= canvasPnl.Location.X And locY >= canvasPnl.Location.Y Then   'Check if object is in panel2, if it is, write to text file
@@ -422,32 +477,34 @@ Public Class Canvas
 
                     pageWriter.WriteLine("<img src='" & picLocation & "' class ='" & objectName & "' " & "alt='test'>") 'write an image
 
-                    writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY) 'Write the class
-
 
                 ElseIf objectName.Contains("Para") Then 'If paragraph element
                     pageWriter.WriteLine("<p class='" & objectName & "'>" & currentObj.Text & "</p>") 'Write the html
 
-                    writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY) 'Write the class
 
                 ElseIf objectName.Contains("Heading") Then 'If heading element
                     Dim headingType As String = objectName(objectName.Length - 1) 'Get last character, which is the type of heading (1 - 6)
                     pageWriter.WriteLine("<h" & headingType & " class='" & objectName & "'>" & currentObj.Text & "</h" & headingType & ">")
 
-                    writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY) 'Write the class
 
                 End If
 
+                writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY) 'Write the class
+
+
             Else 'Else, that it is on the panel but its already been written in html, it means position has been changed. 
-                cssChangePosition(objectName, newLocX, newLocY)
+                cssChangePosition(objectName, newLocX, newLocY) 'Change pos in css
+                dbChangeObjInfo(currentObj, "Location") 'Chage position in db
+
             End If
         Else 'Else, the object is not in the canvas panel, remove the object from html and css
             onCanvas.Remove(currentObj) 'Remove object from the list
+            dbChangeObjInfo(currentObj, "Location") 'Chage position in db
             removeObjFromFiles(objectName) 'Remove from html and css
 
         End If
 
-            readAllHTML()
+        closeAllFiles()
 
     End Sub
 
@@ -563,7 +620,7 @@ Public Class Canvas
             If htmlContents(i).contains(objectName) Then 'If its the object
                 If objectName.Contains("Para") Then 'If its a paragraph
                     htmlContents(i) = "<p class='" & objectName & "'>" & objectText & "</p>"
-                ElseIf objectName.Contains("Heading") Then
+                ElseIf objectName.Contains("Heading") Then 'If its a heading
                     Dim headingType As String = objectName(objectName.Length - 1) 'Get last character, which is the type of heading (1 - 6)
                     htmlContents(i) = "<h" & headingType & " class='" & objectName & "'>" & objectText & "</h" & headingType & ">"
 
@@ -659,7 +716,7 @@ Public Class Canvas
         Catch ex As Exception
 
         End Try
-        
+
 
         Dim allHtmlText As New List(Of String)    'Reading til the end of the textfile 
         While Not pageReader.EndOfStream()
@@ -690,22 +747,7 @@ Public Class Canvas
         Process.Start(fileDirectory & pageName)
     End Sub
 
-    Private Sub canvasPnl_Paint(ByVal sender As System.Object, ByVal e As System.Windows.Forms.PaintEventArgs) Handles canvasPnl.Paint
 
-    End Sub
-
-    Private Sub Canvas_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
-
-    End Sub
-
-   
-    Private Sub MenuStrip1_ItemClicked(ByVal sender As System.Object, ByVal e As System.Windows.Forms.ToolStripItemClickedEventArgs)
-
-    End Sub
-
-    Private Sub lbl_pageName_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles lbl_pageName.Click
-
-    End Sub
 
     Private Sub lbl_mainMenu_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles lbl_mainMenu.Click 'Shows the main menu
         mainMenu.Show()
@@ -724,6 +766,302 @@ Public Class Canvas
             cssReader.Close()
         Catch
         End Try
+    End Sub
+
+
+
+
+
+    Sub dbWriteObj(ByVal obj) 'Writing the object to database so it can be shown on load later. Called if not already on db
+        Dim objectName As String = obj.Name
+        Dim locX = obj.Location.X
+        Dim locY = obj.Location.Y
+        Dim sizeX = obj.Height
+        Dim sizeY = obj.Width
+        Dim fileLoc As String
+        Dim textInp As String
+        Dim fontSize As Integer
+
+
+        Try
+            connectString = provider & dataFile
+            myConnection.ConnectionString = connectString
+            myConnection.Open()
+            Dim query As String
+
+
+            If objectName.Contains("Pic") Then 'If its a image 
+                fileLoc = obj.ImageLocation 'Set the file location
+                query = "INSERT INTO [objects] ([HtmlID], [ObjName], [LocationX], [LocationY], [SizeX], [SizeY], [FileLocation]) VALUES (" _
+                                      & "'" & htmlID & "'," _
+                                      & "'" & objectName & "'," _
+                                      & "'" & locX & "'," _
+                                      & "'" & locY & "'," _
+                                      & "'" & sizeX & "'," _
+                                      & "'" & sizeY & "'," _
+                                      & "'" & fileLoc & "');"
+            ElseIf objectName.Contains("Para") Or objectName.Contains("Heading") Then 'If its a paragraph or heading 
+                textInp = obj.Text 'Set the text
+                fontSize = obj.Font.Size
+                query = "INSERT INTO [objects] ([HtmlID], [ObjName], [LocationX], [LocationY], [SizeX], [SizeY], [TextInput], [FontSize]) VALUES (" _
+                                 & "'" & htmlID & "'," _
+                                 & "'" & objectName & "'," _
+                                 & "'" & locX & "'," _
+                                 & "'" & locY & "'," _
+                                 & "'" & sizeX & "'," _
+                                 & "'" & sizeY & "'," _
+                                 & "'" & textInp & "'," _
+                                 & "'" & fontSize & "');"
+            End If
+
+
+            Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
+            command.ExecuteNonQuery() 'Insert the obj into the database
+            command.Dispose()
+            myConnection.Close()
+
+        Catch ex As Exception
+            MsgBox(ex.Message)
+            myConnection.Close()
+            MsgBox("error")
+        End Try
+    End Sub
+
+
+    Function getObjID(ByVal ObjectName) 'Get the obj id 
+        Dim objID
+
+        Try
+            myConnection.ConnectionString = connectString
+            myConnection.Open()
+            Dim query As String = "SELECT [ObjectID] FROM [objects] WHERE [HtmlID] = " & htmlID & " AND [ObjName] = '" & ObjectName & "'"
+            Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
+            Using readerObj As OleDbDataReader = command.ExecuteReader
+                readerObj.Read()
+                objID = readerObj.Item("ObjectID") 'Gets websiteID  where the website name is the same from database
+
+            End Using
+            command.Dispose()
+            myConnection.Close()
+
+        Catch ex As Exception    'If error, it means object not found
+            MsgBox("Object not found")
+            myConnection.Close()
+
+        End Try
+
+        Return objID 'Return the ID
+
+    End Function
+
+
+
+    Sub dbChangeObjInfo(ByVal obj, ByVal type) 'Change the information in db such as size or position
+        Dim objName = obj.Name 'Set name
+        Dim objID = getObjID(objName) 'Set objectID
+
+
+        Try
+            myConnection.ConnectionString = connectString
+            myConnection.Open()
+            Dim query As String
+            If type = "Location" Then 'If changing location
+                query = "UPDATE [objects] SET [LocationX] = " & obj.Location.X & ", [LocationY] = " & obj.Location.Y & " WHERE [ObjectID] = " & objID
+            ElseIf type = "Size" Then 'If changing size
+                query = "UPDATE [objects] SET [SizeX] = " & obj.Width & ", [SizeY] = " & obj.Height & " WHERE [ObjectID] = " & objID
+            ElseIf type = "Text" Then 'If changing text
+                query = "UPDATE [objects] SET [TextInput] = '" & obj.Text & "' WHERE [ObjectID] = " & objID
+            End If
+
+            'Changes size or position
+            Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
+            command.ExecuteNonQuery()
+            command.Dispose()
+            myConnection.Close()
+
+        Catch ex As Exception
+            MsgBox("Error")
+            Exit Sub
+        End Try
+    End Sub
+
+    Sub dbRemoveObj(ByVal objectName) 'Remove obj from db
+        Dim objID = getObjID(objectName) 'Set objectID
+        Try
+            connectString = provider & dataFile
+            myConnection.ConnectionString = connectString
+            myConnection.Open()
+            Dim query As String = "DELETE FROM [objects] WHERE [ObjectID] = " & objID
+            Dim command As OleDbCommand = New OleDbCommand(query, myConnection) 'Delete whre obj = the same
+            command.ExecuteNonQuery()
+            command.Dispose()
+            myConnection.Close()
+        Catch ex As Exception
+            MsgBox(ex.Message)
+            myConnection.Close()
+            MsgBox("error")
+        End Try
+    End Sub
+
+    Sub getCurrentCounters() 'Get the counters from db
+        Try
+            myConnection.ConnectionString = connectString
+            myConnection.Open()
+            Dim query As String = "SELECT [ImageCount], [ParagraphCount], [HeadingCount], [AnchorCount] FROM [html] WHERE [HtmlID] = " & htmlID
+            Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
+            Using readerObj As OleDbDataReader = command.ExecuteReader
+                readerObj.Read()
+                picCounter = readerObj.Item("ImageCount") 'Gets counters
+                paraCounter = readerObj.Item("ParagraphCount")
+                headingCounter = readerObj.Item("HeadingCount")
+                anchorCounter = readerObj.Item("AnchorCount")
+            End Using
+            command.Dispose()
+            myConnection.Close()
+
+        Catch ex As Exception    'If error, it means page not found
+            MsgBox("Page not found")
+            myConnection.Close()
+
+        End Try
+    End Sub
+
+
+    Sub dbUpdateCounters() 'If object entered/deleted, change the counters in the  database
+
+        Try
+            myConnection.ConnectionString = connectString
+            myConnection.Open()
+            Dim query As String = "UPDATE [html] SET [ImageCount] = " & picCounter & ", [ParagraphCount] = " & paraCounter & ", [HeadingCount] = " & headingCounter & ", [AnchorCount] = " & anchorCounter & " WHERE [HtmlID] = " & htmlID
+
+            'Changes size or position
+            Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
+            command.ExecuteNonQuery()
+            command.Dispose()
+            myConnection.Close()
+
+        Catch ex As Exception
+            MsgBox("Error")
+            Exit Sub
+        End Try
+    End Sub
+
+
+    Sub loadObjects() 'Load all objects from objects table 
+
+        Dim objCounter = -1 'Current obj from db
+
+        Dim objStorage As New Dictionary(Of Integer, dbObj) 'Create dictionary which will hold the objects, which is used because variables are created dynamically 
+
+        Try
+            myConnection.ConnectionString = connectString
+            myConnection.Open()
+
+            Dim dt As New DataTable 'Holds the info about all objects
+            Dim ds As New DataSet
+            ds.Tables.Add(dt) 'Add the table to dataset
+            Dim query As New OleDbDataAdapter
+
+            query = New OleDbDataAdapter("SELECT * from objects WHERE [HtmlID] = " & htmlID, myConnection) 'Get all objs from table objects
+            query.Fill(dt) 'Fill the dt with this info
+
+            Dim objectArray = dt.Select() 'the objectArray will have the dataset info
+
+            For i = 0 To objectArray.Length - 1 'Go through every object
+
+                Dim dbObj As dbObj = New dbObj 'Instantiate new obj
+                objCounter += 1 'Increment amount of objects
+                objStorage.Add(objCounter, dbObj) 'Add obj and current counter into dictionary
+
+                For j = 2 To 9 'Go through the attributes. Start from 2 to ignore ID's
+
+                    Select Case j 'Set the attributes
+                        Case 2
+                            objStorage(objCounter).objName = (objectArray(i).ItemArray(j)).ToString 'Converting to string because of its data type
+                        Case 3
+                            objStorage(objCounter).locX = objectArray(i).ItemArray(j)
+                        Case 4
+                            objStorage(objCounter).locY = objectArray(i).ItemArray(j)
+                        Case 5
+                            objStorage(objCounter).sizeX = objectArray(i).ItemArray(j)
+                        Case 6
+                            objStorage(objCounter).sizeY = objectArray(i).ItemArray(j)
+                        Case 7
+                            objStorage(objCounter).fileLoc = (objectArray(i).ItemArray(j)).ToString
+                        Case 8
+                            objStorage(objCounter).text = (objectArray(i).ItemArray(j)).ToString
+                        Case 9
+                            objStorage(objCounter).fontSize = (objectArray(i).ItemArray(j)).ToString
+                    End Select
+                Next
+
+            Next
+            myConnection.Close()
+
+        Catch ex As Exception    'If error, it means object not found
+            MsgBox("Object not found")
+            myConnection.Close()
+        End Try
+
+
+        recreateObj(objStorage) 'Pass in the obj dictionary to recreate the objects on canvas
+
+
+    End Sub
+
+    Sub recreateObj(ByVal objStorage) 'Recreate the object
+        Dim amountOfOjbs As Integer = objStorage.Count - 1
+        Dim objName As String
+
+        Dim locX As Integer
+        Dim locY As Integer
+        Dim sizeX As Integer
+        Dim sizeY As Integer
+        Dim fileLoc As String
+        Dim text As String
+        Dim fontSize As Integer
+
+        For i = 0 To amountOfOjbs 'Go through every object in dictionary
+
+            objName = objStorage(i).objName
+            locX = objStorage(i).locX
+            locY = objStorage(i).locY
+            sizeX = objStorage(i).sizeX
+            sizeY = objStorage(i).sizeY
+            fileLoc = objStorage(i).fileLoc
+            text = objStorage(i).Text
+            fontSize = objStorage(i).fontSize
+
+            If objName.Contains("Pic") Then
+                Dim tempPic As New PictureBox   'Instantiates new picture box
+
+                tempPic.Name = objName 'Set name
+                tempPic.SizeMode = PictureBoxSizeMode.StretchImage 'Make picturebox resize to whatever the image is
+
+                tempPic.Load(fileLoc) 'Show image
+
+                configureObjects(tempPic, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
+
+            ElseIf objName.Contains("Para") Then
+                Dim tempPara As New RichTextBox  'Instantiates new paragraph
+                tempPara.Name = objName 'Set name
+                tempPara.Text = text 'Set text in textbox
+                tempPara.Font = New Font(tempPara.Font.FontFamily, fontSize) 'Change font size
+                configureObjects(tempPara, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
+
+            ElseIf objName.Contains("Heading") Then
+                Dim tempPara As New RichTextBox  'Instantiates new paragraph
+                tempPara.Name = objName 'Set name
+                tempPara.Font = New Font(tempPara.Font.FontFamily, fontSize) 'Change font size
+                tempPara.Text = text 'Set text in textbox
+
+                configureObjects(tempPara, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
+            End If
+
+
+
+        Next
+
     End Sub
 End Class
 
