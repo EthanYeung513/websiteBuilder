@@ -5,7 +5,7 @@
 [![HitCount](http://hits.dwyl.com/EthanYeung513/websiteBuilder.svg)](http://hits.dwyl.com/EthanYeung513/websiteBuilder)
 
 
-This project will allow users to create a HTML and CSS through a drag and drop menu in a windows application. 
+This project will allow users create HTML and CSS files through a drag and drop system in a windows application. 
 
 #### Technologies
 Visual basic 
