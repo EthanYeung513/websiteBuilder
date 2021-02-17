@@ -25,6 +25,6 @@ in a web browser.
 Current elements that can be used: Paragraph, image, and heading.
 
 
-<img src"githubImages/webBuilderDemoCanvas.PNG">
+<img src="githubImages/webBuilderDemoCanvas.PNG">
 
-<img src"webBuilderDemoPage.PNG">
+<img src="webBuilderDemoPage.PNG">
