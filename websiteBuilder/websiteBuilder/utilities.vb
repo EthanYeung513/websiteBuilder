@@ -59,8 +59,6 @@ Module utilities
         Dim hash As Byte() = sha256.ComputeHash(bytes)
         Dim stringBuilder As New StringBuilder()
 
-
-
         For i As Integer = 0 To hash.Length - 1
             stringBuilder.Append(hash(i).ToString("X2"))
         Next

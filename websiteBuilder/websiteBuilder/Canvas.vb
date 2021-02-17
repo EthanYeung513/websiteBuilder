@@ -17,6 +17,8 @@ Public Class Canvas
 
     Dim onCanvas As New List(Of Object) 'Holds objects which are on the canvas
 
+
+    'These variables are used to provide the objects with unique names
     Dim picCounter As Integer   'Counter for amount of picboxes
     Dim paraCounter As Integer  'Counter for amount of paragrahs 
     Dim headingCounter As Integer 'Counter for amount of headings
@@ -456,14 +458,18 @@ Public Class Canvas
             currentObj.Dispose() 'Destroy obj
 
 
-            If objectName.Contains("Para") Then  'If the obj was a paragraph, decrement counter of paraCounter
-                paraCounter -= 1
-            ElseIf objectName.Contains("Pic") Then 'If the obj was a picBox, decrement counter of picCounter
-                picCounter -= 1
-            ElseIf objectName.Contains("Heading") Then 'If the obj was a heading, decrement counter of headingCounter
-                headingCounter -= 1
-            ElseIf objectName.Contains("Anchor") Then 'If the obj was a anchor, decrement counter of anchorCounter
-                anchorCounter -= 1
+            'Increment counters. Even tho its deleting, in order to have unique names, it must go up.
+            'It would not work if decrementing because if we had para1 and para2, and we deleted para1, the next object would 
+            'Have a counter = 2, which would cause an issue 
+
+            If objectName.Contains("Para") Then  'If the obj was a paragraph, increment counter of paraCounter
+                paraCounter += 1
+            ElseIf objectName.Contains("Pic") Then 'If the obj was a picBox, increment  counter of picCounter
+                picCounter += 1
+            ElseIf objectName.Contains("Heading") Then 'If the obj was a heading, increment  counter of headingCounter
+                headingCounter += 1
+            ElseIf objectName.Contains("Anchor") Then 'If the obj was a anchor, increment  counter of anchorCounter
+                anchorCounter += 1
             End If
             totalCounter -= 1
 

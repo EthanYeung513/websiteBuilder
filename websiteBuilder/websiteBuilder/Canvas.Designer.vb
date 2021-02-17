@@ -41,6 +41,7 @@ Partial Class Canvas
         Me.lbl_webName = New System.Windows.Forms.Label()
         Me.lbl_pageName = New System.Windows.Forms.Label()
         Me.lbl_mainMenu = New System.Windows.Forms.Label()
+        Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.toolboxPnl.SuspendLayout()
         CType(Me.trashPic, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -238,6 +239,14 @@ Partial Class Canvas
         Me.lbl_mainMenu.TabIndex = 8
         Me.lbl_mainMenu.Text = "Back to main menu"
         '
+        'MenuStrip1
+        '
+        Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
+        Me.MenuStrip1.Name = "MenuStrip1"
+        Me.MenuStrip1.Size = New System.Drawing.Size(1380, 24)
+        Me.MenuStrip1.TabIndex = 9
+        Me.MenuStrip1.Text = "MenuStrip1"
+        '
         'Canvas
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -251,6 +260,8 @@ Partial Class Canvas
         Me.Controls.Add(Me.toolboxPnl)
         Me.Controls.Add(Me.btn_save)
         Me.Controls.Add(Me.canvasPnl)
+        Me.Controls.Add(Me.MenuStrip1)
+        Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "Canvas"
         Me.Text = "Canvas"
         Me.toolboxPnl.ResumeLayout(False)
@@ -278,5 +289,6 @@ Partial Class Canvas
     Friend WithEvents lbl_pageName As System.Windows.Forms.Label
     Friend WithEvents lbl_mainMenu As System.Windows.Forms.Label
     Friend WithEvents trashPic As System.Windows.Forms.PictureBox
+    Friend WithEvents MenuStrip1 As System.Windows.Forms.MenuStrip
 
 End Class
