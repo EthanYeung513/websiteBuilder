@@ -27,4 +27,4 @@ Current elements that can be used: Paragraph, image, and heading.
 
 <img src="githubImages/webBuilderDemoCanvas.PNG">
 
-<img src="webBuilderDemoPage.PNG">
+<img src="githubImages/webBuilderDemoPage.PNG">
