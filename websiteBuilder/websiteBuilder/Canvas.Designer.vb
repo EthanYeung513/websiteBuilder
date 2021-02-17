@@ -29,6 +29,7 @@ Partial Class Canvas
         Me.undoBtn = New System.Windows.Forms.Button()
         Me.resizeBtn = New System.Windows.Forms.Button()
         Me.toolboxPnl = New System.Windows.Forms.Panel()
+        Me.trashPic = New System.Windows.Forms.PictureBox()
         Me.headSelectorCmb = New System.Windows.Forms.ComboBox()
         Me.makeAnchorButton = New System.Windows.Forms.Button()
         Me.makeHeadingBtn = New System.Windows.Forms.Button()
@@ -41,6 +42,7 @@ Partial Class Canvas
         Me.lbl_pageName = New System.Windows.Forms.Label()
         Me.lbl_mainMenu = New System.Windows.Forms.Label()
         Me.toolboxPnl.SuspendLayout()
+        CType(Me.trashPic, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'makePicBoxBtn
@@ -84,9 +86,9 @@ Partial Class Canvas
         '
         'undoBtn
         '
-        Me.undoBtn.Location = New System.Drawing.Point(20, 480)
+        Me.undoBtn.Location = New System.Drawing.Point(32, 478)
         Me.undoBtn.Name = "undoBtn"
-        Me.undoBtn.Size = New System.Drawing.Size(84, 23)
+        Me.undoBtn.Size = New System.Drawing.Size(90, 23)
         Me.undoBtn.TabIndex = 0
         Me.undoBtn.Text = "Undo"
         Me.undoBtn.UseVisualStyleBackColor = True
@@ -108,6 +110,7 @@ Partial Class Canvas
         '
         Me.toolboxPnl.BackColor = System.Drawing.Color.White
         Me.toolboxPnl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.toolboxPnl.Controls.Add(Me.trashPic)
         Me.toolboxPnl.Controls.Add(Me.headSelectorCmb)
         Me.toolboxPnl.Controls.Add(Me.makeAnchorButton)
         Me.toolboxPnl.Controls.Add(Me.makeHeadingBtn)
@@ -121,6 +124,17 @@ Partial Class Canvas
         Me.toolboxPnl.Name = "toolboxPnl"
         Me.toolboxPnl.Size = New System.Drawing.Size(153, 528)
         Me.toolboxPnl.TabIndex = 0
+        '
+        'trashPic
+        '
+        Me.trashPic.Image = Global.websiteBuilder.My.Resources.Resources.trashLogo
+        Me.trashPic.InitialImage = Nothing
+        Me.trashPic.Location = New System.Drawing.Point(52, 402)
+        Me.trashPic.Name = "trashPic"
+        Me.trashPic.Size = New System.Drawing.Size(45, 45)
+        Me.trashPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
+        Me.trashPic.TabIndex = 9
+        Me.trashPic.TabStop = False
         '
         'headSelectorCmb
         '
@@ -240,6 +254,7 @@ Partial Class Canvas
         Me.Name = "Canvas"
         Me.Text = "Canvas"
         Me.toolboxPnl.ResumeLayout(False)
+        CType(Me.trashPic, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -262,5 +277,6 @@ Partial Class Canvas
     Friend WithEvents headSelectorCmb As System.Windows.Forms.ComboBox
     Friend WithEvents lbl_pageName As System.Windows.Forms.Label
     Friend WithEvents lbl_mainMenu As System.Windows.Forms.Label
+    Friend WithEvents trashPic As System.Windows.Forms.PictureBox
 
 End Class

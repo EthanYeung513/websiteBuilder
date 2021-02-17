@@ -27,7 +27,7 @@ Public Class Canvas
     Dim totalCounter As Integer = -1 'Counter for all objects created by user
     Dim objectStack As New Stack 'Holds all objects, allowing user to remove objects at top of stack via undo function
 
-
+    Dim backgroundColour As Color 'The colour of the background
 
     Dim x = 220    'Coords of the object, will add so location wont be the same
     Dim y = 45
@@ -56,7 +56,11 @@ Public Class Canvas
 
         getCurrentCounters() 'Set the counters 
 
+        Me.KeyPreview = True 'Allow program to capture key down
+
+        setBgColour() 'set the background colour on load, to what is present in css
         loadObjects() 'Load all objects from previous edits onto the form
+
 
         lbl_username.Text = username & " > "  'Change the label text to show the info of the website
         lbl_webName.Text = websiteName & " > "
@@ -112,6 +116,26 @@ Public Class Canvas
         End Try
     End Sub
 
+    Sub setBgColour() 'set the background colour on load, to what is present in css
+        Dim cssContents = readAllCSS() 'Load all css contents
+
+        Dim colourCode As String = ""  'Hexcode found in css
+
+        Dim length = cssContents.Count() - 1  'Get the amount of lines in css file
+        For i = 0 To length  'Go through the css lines
+            If cssContents(i).contains("background-color:") Then  'If there's a background colour
+                Dim tempLine = cssContents(i)
+                For j = 17 To Len(tempLine) - 2 'Get the hexcode
+                    colourCode += tempLine(j) 'Add to hexcode string
+                Next
+                Exit For
+
+            End If
+        Next
+
+        Dim bgColour As Color = ColorTranslator.FromHtml(colourCode) 'Translate hexcode to color that vb.net knows
+        canvasPnl.BackColor = bgColour 'Change background colour
+    End Sub
 
     'Code for the mouse
 
@@ -171,7 +195,11 @@ Public Class Canvas
     Private Sub MyMouseUp(ByVal sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles createdObj.MouseUp  'If mouse lets go 
         dragging = False 'Set to false 
         If moveMode = True Then 'When they let go on movemode
-            writeToHtml(sender) 'Write object to html 
+            If removeObject(sender) = True Then 'Check if obj on trashcan, if it is, delete. Return true if deleted
+                Exit Sub 'Dont continue with sub
+            End If
+            writeToHtml(sender) 'Write object to html if on panel
+
 
         ElseIf resizeMode = True Then 'If resized and on canvas, change the css and db size
             dbChangeObjInfo(sender, "Size") 'Change size in db
@@ -216,10 +244,7 @@ Public Class Canvas
 
                     Dim imageSelector As OpenFileDialog = New OpenFileDialog
                     imageSelector.ShowDialog()
-
-
                     Dim tempFileLocation = imageSelector.FileName '
-
 
                     tempPic.Load(tempFileLocation) 'Set the pic to what they choose
                     imageSelector.Dispose()
@@ -233,7 +258,6 @@ Public Class Canvas
             configureObjects(tempPic, True, x, y, 50, 50)
 
         End If
-
 
     End Sub
 
@@ -266,7 +290,7 @@ Public Class Canvas
 
             'Change the font size depending the heading type
             Dim i As Integer = 1  'Used to loop to the headingType
-            Dim fontSize = 25 'H1 size will = 25, and decrement by each heading 
+            Dim fontSize = 22 'H1 size will = 22, and decrement by each heading 
             headingType = headingType(1)
             While headingType <> i  'Loop until heading type is the same as i
                 fontSize -= 3 'Decrement font
@@ -282,10 +306,6 @@ Public Class Canvas
 
         End If
     End Sub
-
-
-
-
 
 
     Private Sub makeAnchorButton_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles makeAnchorButton.Click
@@ -325,6 +345,10 @@ Public Class Canvas
 
         y += 60  'Change coords of next new object
 
+
+
+
+
         Me.Controls.Add(moveableObj)
         moveableObj.BringToFront()
 
@@ -335,8 +359,6 @@ Public Class Canvas
 
             dbUpdateCounters() 'Update counters in the db
         End If
-
-       
     End Sub
     Private Sub checkUiOverflow()  'If going over panel, stop them from creating more
         If y > 520 Then
@@ -353,13 +375,13 @@ Public Class Canvas
         y -= 60
         allowAdd = True  'Allow user to add more objects
 
-        If objType.Contains("Para") Then  'If the obj was a paragraph, decrememnt counter of paraCounter
+        If objType.Contains("Para") Then  'If the obj was a paragraph, decrement counter of paraCounter
             paraCounter -= 1
-        ElseIf objType.Contains("Pic") Then 'If the obj was a picBox, decrememnt counter of picCounter
+        ElseIf objType.Contains("Pic") Then 'If the obj was a picBox, decrement counter of picCounter
             picCounter -= 1
-        ElseIf objType.Contains("Heading") Then 'If the obj was a heading, decrememnt counter of headingCounter
+        ElseIf objType.Contains("Heading") Then 'If the obj was a heading, decrement counter of headingCounter
             headingCounter -= 1
-        ElseIf objType.Contains("Anchor") Then 'If the obj was a anchor, decrememnt counter of anchorCounter
+        ElseIf objType.Contains("Anchor") Then 'If the obj was a anchor, decrement counter of anchorCounter
             anchorCounter -= 1
         End If
         totalCounter -= 1  'Decrement total amount of objects counter
@@ -376,21 +398,87 @@ Public Class Canvas
             undoObject() 'Delete object from the panel
 
             dbUpdateCounters() ''Update counters in the db
-
-
         Catch
             MessageBox.Show("Cannot undo no objects")
         End Try
     End Sub
 
-    Private Sub Form1_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles MyBase.KeyDown
-        MessageBox.Show("Cannot undo no objects")
+    Private Sub Canvas_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles MyBase.KeyDown
         If ((e.KeyCode = Keys.Z) AndAlso e.Control) Then
-            MsgBox("test")
-            undoObject()
+            Try 'Will create stack underflow if trying to delete no objects
+                removeObjFromFiles(objectStack(0).Name) 'Delete from files
+                dbRemoveObj(objectStack(0).Name) 'Delete from db
+
+                undoObject() 'Delete object from the panel
+
+                dbUpdateCounters() ''Update counters in the db
+            Catch
+                MessageBox.Show("Cannot undo no objects")
+            End Try
         End If
     End Sub
 
+
+    Function removeObject(ByRef currentObj) 'Check if on the trash can and then if it is, delete it. Return true if deleted obj
+        Dim objectName As String = currentObj.Name 'Set the name of the object
+
+
+        If currentObj.Location.X >= trashPic.Location.X And currentObj.Location.Y >= trashPic.Location.Y Then 'If object on trashcan
+            If onCanvas.Contains(currentObj) Then 'If its on the onCanvas list
+                onCanvas.Remove(currentObj)   'Remove it
+                removeObjFromFiles(objectName) 'Delete from files
+            End If
+
+            dbRemoveObj(objectName) 'Delete from db 
+
+
+            'Remake stack, because you can't remove by index 
+            Dim tempList As New List(Of Object) 'Make a list
+            While objectStack.Count <> 0 'While theres not nothing in stack
+                Dim tempObjName = objectStack.Peek().Name
+                If tempObjName <> objectName Then 'If the object on stack is not the object that's being deleted
+                    tempList.Add(objectStack.Peek()) 'Add the top of stack to 
+
+                End If
+
+                Try
+                    objectStack.Pop() 'Delete that obj off stack
+                Catch
+                End Try
+            End While
+
+            tempList.Reverse()  'Reverse list because first in first out for stack
+            For Each obj In tempList 'Go through every object in templist
+                objectStack.Push(obj) 'Add in the obj
+
+            Next
+            y -= 60 'Change the coords that next obj will spawn
+            currentObj.Dispose() 'Destroy obj
+
+
+            If objectName.Contains("Para") Then  'If the obj was a paragraph, decrement counter of paraCounter
+                paraCounter -= 1
+            ElseIf objectName.Contains("Pic") Then 'If the obj was a picBox, decrement counter of picCounter
+                picCounter -= 1
+            ElseIf objectName.Contains("Heading") Then 'If the obj was a heading, decrement counter of headingCounter
+                headingCounter -= 1
+            ElseIf objectName.Contains("Anchor") Then 'If the obj was a anchor, decrement counter of anchorCounter
+                anchorCounter -= 1
+            End If
+            totalCounter -= 1
+
+            dbUpdateCounters() ''Update counters in the db
+
+            Return True
+        End If
+        Return False
+
+    End Function
+
+
+
+
+  
     Private Sub resizeBtn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles resizeBtn.Click 'Allows users to toggle resize mode 
         If resizeMode = True Then   'If resize mode is on, turn it off 
             allModes.Pop()
@@ -452,7 +540,7 @@ Public Class Canvas
         Dim locY As Integer = currentObj.Location.Y
 
         Dim newLocX As Integer = (locX - 280) * 1.9 'Set up the location and size so it appears the same on the page (used for css)
-        Dim newLocY As Integer = (locY - 40) * 1.9
+        Dim newLocY As Integer = (locY - 50) * 1.9
         Dim newSizeX = currentObj.Width * 1.6
         Dim newSizeY = currentObj.Height * 1.6
 
@@ -484,7 +572,6 @@ Public Class Canvas
                     Dim headingType As String = objectName(objectName.Length - 1) 'Get last character, which is the type of heading (1 - 6)
                     pageWriter.WriteLine("<h" & headingType & " class='" & objectName & "'>" & currentObj.Text & "</h" & headingType & ">")
 
-
                 End If
 
                 writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY) 'Write the class
@@ -492,18 +579,16 @@ Public Class Canvas
 
             Else 'Else, that it is on the panel but its already been written in html, it means position has been changed. 
                 cssChangePosition(objectName, newLocX, newLocY) 'Change pos in css
-                dbChangeObjInfo(currentObj, "Location") 'Chage position in db
+                dbChangeObjInfo(currentObj, "Location") 'Change position in db
 
             End If
         Else 'Else, the object is not in the canvas panel, remove the object from html and css
             onCanvas.Remove(currentObj) 'Remove object from the list
-            dbChangeObjInfo(currentObj, "Location") 'Chage position in db
+            dbChangeObjInfo(currentObj, "Location") 'Change position in db, because it is still on the form
             removeObjFromFiles(objectName) 'Remove from html and css
 
         End If
-
         closeAllFiles()
-
     End Sub
 
     Sub writeToCss(ByVal objectName, ByVal sizeX, ByVal sizeY, ByVal locX, ByVal locY) 'Writing the classes
@@ -554,7 +639,6 @@ Public Class Canvas
 
 
     Sub cssChangePosition(ByVal objectName, ByRef locX, ByVal locY) 'Change position on canvas in css, called when moved while on canvas
-
         Dim cssContents = readAllCSS() 'The list of all css contents
 
         For i = 0 To cssContents.count() - 1 'Go through css list
@@ -568,8 +652,6 @@ Public Class Canvas
                     End If
                 Next
             End If
-
-
         Next
         writeAllCss(cssContents) 'Write all back into file
     End Sub
@@ -586,7 +668,6 @@ Public Class Canvas
                 Exit For 'Stop looping because its removed in html
             End If
 
-
         Next
 
         For i = 0 To cssContents.count() - 1 'Go through css list
@@ -599,10 +680,7 @@ Public Class Canvas
                 Exit For 'Stop looping because its removed in css
             End If
 
-
         Next
-
-
 
         writeAllHtml(htmlContents) 'Write the contents into the files using the list contents
         writeAllCss(cssContents)
@@ -672,7 +750,11 @@ Public Class Canvas
                 Exit For
             End If
         Next
-        cssWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & "style.css", False) 'Open writer, while also overwriting 
+
+        For Each obj In objectStack 'Change the bg of each object to the back colour of the canvas panel
+            obj.BackColor = canvasPnl.BackColor
+        Next
+
 
         writeAllCss(cssContents)
     End Sub
@@ -780,7 +862,6 @@ Public Class Canvas
         Dim textInp As String
         Dim fontSize As Integer
 
-
         Try
             connectString = provider & dataFile
             myConnection.ConnectionString = connectString
@@ -847,17 +928,14 @@ Public Class Canvas
             myConnection.Close()
 
         End Try
-
         Return objID 'Return the ID
-
     End Function
 
 
 
-    Sub dbChangeObjInfo(ByVal obj, ByVal type) 'Change the information in db such as size or position
+    Sub dbChangeObjInfo(ByVal obj, ByVal type) 'Change the information in db such as size,position or text
         Dim objName = obj.Name 'Set name
         Dim objID = getObjID(objName) 'Set objectID
-
 
         Try
             myConnection.ConnectionString = connectString
@@ -906,10 +984,10 @@ Public Class Canvas
             myConnection.ConnectionString = connectString
             myConnection.Open()
             Dim query As String = "SELECT [ImageCount], [ParagraphCount], [HeadingCount], [AnchorCount] FROM [html] WHERE [HtmlID] = " & htmlID
-            Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
+            Dim command As OleDbCommand = New OleDbCommand(query, myConnection) 'Get counters from table html
             Using readerObj As OleDbDataReader = command.ExecuteReader
                 readerObj.Read()
-                picCounter = readerObj.Item("ImageCount") 'Gets counters
+                picCounter = readerObj.Item("ImageCount") 'Set counters
                 paraCounter = readerObj.Item("ParagraphCount")
                 headingCounter = readerObj.Item("HeadingCount")
                 anchorCounter = readerObj.Item("AnchorCount")
@@ -946,7 +1024,6 @@ Public Class Canvas
 
 
     Sub loadObjects() 'Load all objects from objects table 
-
         Dim objCounter = -1 'Current obj from db
 
         Dim objStorage As New Dictionary(Of Integer, dbObj) 'Create dictionary which will hold the objects, which is used because variables are created dynamically 
@@ -1000,9 +1077,7 @@ Public Class Canvas
             myConnection.Close()
         End Try
 
-
         recreateObj(objStorage) 'Pass in the obj dictionary to recreate the objects on canvas
-
 
     End Sub
 
@@ -1017,8 +1092,6 @@ Public Class Canvas
         Dim fileLoc As String
         Dim text As String
         Dim fontSize As Integer
-
-        Dim tempObj
 
         For i = 0 To amountOfOjbs 'Go through every object in dictionary
 
@@ -1064,6 +1137,10 @@ Public Class Canvas
         Next
 
     End Sub
+
+
+ 
+
 End Class
 
 
