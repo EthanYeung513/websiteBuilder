@@ -23,3 +23,9 @@ Able to drag and drop elements into the panel, which would create change in the 
 in a web browser.
 
 Current elements that can be used: Paragraph, image, and heading.
+
+### Note that the following images are a demonstation and are not the final product
+
+<img src="githubImages/webBuilderDemoCanvas.PNG">
+
+<img src="githubImages/webBuilderDemoPage.PNG">
