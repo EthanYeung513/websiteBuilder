@@ -35,15 +35,19 @@ Partial Class Canvas
         Me.makeHeadingBtn = New System.Windows.Forms.Button()
         Me.colourBtn = New System.Windows.Forms.Button()
         Me.moveBtn = New System.Windows.Forms.Button()
-        Me.ColorDialog1 = New System.Windows.Forms.ColorDialog()
         Me.btn_openBrowser = New System.Windows.Forms.Button()
         Me.lbl_username = New System.Windows.Forms.Label()
         Me.lbl_webName = New System.Windows.Forms.Label()
         Me.lbl_pageName = New System.Windows.Forms.Label()
         Me.lbl_mainMenu = New System.Windows.Forms.Label()
-        Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
+        Me.menuStrip = New System.Windows.Forms.MenuStrip()
+        Me.MenuToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.BackToMainMenuToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ChangeTitleToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ChangeIconToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.toolboxPnl.SuspendLayout()
         CType(Me.trashPic, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.menuStrip.SuspendLayout()
         Me.SuspendLayout()
         '
         'makePicBoxBtn
@@ -239,13 +243,39 @@ Partial Class Canvas
         Me.lbl_mainMenu.TabIndex = 8
         Me.lbl_mainMenu.Text = "Back to main menu"
         '
-        'MenuStrip1
+        'menuStrip
         '
-        Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
-        Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(1380, 24)
-        Me.MenuStrip1.TabIndex = 9
-        Me.MenuStrip1.Text = "MenuStrip1"
+        Me.menuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.MenuToolStripMenuItem})
+        Me.menuStrip.Location = New System.Drawing.Point(0, 0)
+        Me.menuStrip.Name = "menuStrip"
+        Me.menuStrip.Size = New System.Drawing.Size(1380, 24)
+        Me.menuStrip.TabIndex = 9
+        Me.menuStrip.Text = "MenuStrip1"
+        '
+        'MenuToolStripMenuItem
+        '
+        Me.MenuToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BackToMainMenuToolStripMenuItem, Me.ChangeTitleToolStripMenuItem, Me.ChangeIconToolStripMenuItem})
+        Me.MenuToolStripMenuItem.Name = "MenuToolStripMenuItem"
+        Me.MenuToolStripMenuItem.Size = New System.Drawing.Size(50, 20)
+        Me.MenuToolStripMenuItem.Text = "Menu"
+        '
+        'BackToMainMenuToolStripMenuItem
+        '
+        Me.BackToMainMenuToolStripMenuItem.Name = "BackToMainMenuToolStripMenuItem"
+        Me.BackToMainMenuToolStripMenuItem.Size = New System.Drawing.Size(177, 22)
+        Me.BackToMainMenuToolStripMenuItem.Text = "Back to main menu"
+        '
+        'ChangeTitleToolStripMenuItem
+        '
+        Me.ChangeTitleToolStripMenuItem.Name = "ChangeTitleToolStripMenuItem"
+        Me.ChangeTitleToolStripMenuItem.Size = New System.Drawing.Size(177, 22)
+        Me.ChangeTitleToolStripMenuItem.Text = "Change title"
+        '
+        'ChangeIconToolStripMenuItem
+        '
+        Me.ChangeIconToolStripMenuItem.Name = "ChangeIconToolStripMenuItem"
+        Me.ChangeIconToolStripMenuItem.Size = New System.Drawing.Size(177, 22)
+        Me.ChangeIconToolStripMenuItem.Text = "Change icon"
         '
         'Canvas
         '
@@ -260,12 +290,14 @@ Partial Class Canvas
         Me.Controls.Add(Me.toolboxPnl)
         Me.Controls.Add(Me.btn_save)
         Me.Controls.Add(Me.canvasPnl)
-        Me.Controls.Add(Me.MenuStrip1)
-        Me.MainMenuStrip = Me.MenuStrip1
+        Me.Controls.Add(Me.menuStrip)
+        Me.MainMenuStrip = Me.menuStrip
         Me.Name = "Canvas"
         Me.Text = "Canvas"
         Me.toolboxPnl.ResumeLayout(False)
         CType(Me.trashPic, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.menuStrip.ResumeLayout(False)
+        Me.menuStrip.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -279,7 +311,6 @@ Partial Class Canvas
     Friend WithEvents toolboxPnl As System.Windows.Forms.Panel
     Friend WithEvents moveBtn As System.Windows.Forms.Button
     Friend WithEvents colourBtn As System.Windows.Forms.Button
-    Friend WithEvents ColorDialog1 As System.Windows.Forms.ColorDialog
     Friend WithEvents btn_openBrowser As System.Windows.Forms.Button
     Friend WithEvents lbl_username As System.Windows.Forms.Label
     Friend WithEvents lbl_webName As System.Windows.Forms.Label
@@ -289,6 +320,10 @@ Partial Class Canvas
     Friend WithEvents lbl_pageName As System.Windows.Forms.Label
     Friend WithEvents lbl_mainMenu As System.Windows.Forms.Label
     Friend WithEvents trashPic As System.Windows.Forms.PictureBox
-    Friend WithEvents MenuStrip1 As System.Windows.Forms.MenuStrip
+    Friend WithEvents menuStrip As System.Windows.Forms.MenuStrip
+    Friend WithEvents MenuToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents BackToMainMenuToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ChangeTitleToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ChangeIconToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
 
 End Class

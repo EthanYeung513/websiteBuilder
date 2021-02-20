@@ -78,6 +78,8 @@ Public Class Canvas
         pageWriter.WriteLine("<!DOCTYPE html>") 'Specifies it's a HTML5 document
         pageWriter.WriteLine("<HTML>") 'Shows it's a html file
         pageWriter.WriteLine("<Head>") 'Contains information  about the html file
+        pageWriter.WriteLine("<title>" & pageName & "</title>") 'Set the title to page name
+        pageWriter.WriteLine("<link rel='icon' href='' type='image/x-icon>'") 'Set the icon to nothing on creation
         pageWriter.WriteLine("<meta charset='utf-8'>") 'Set character set to utf-8
         pageWriter.WriteLine("<link rel='stylesheet' href='style.css'>")  'Link external CSS
         pageWriter.WriteLine("</Head>") 'Close head tag
@@ -738,10 +740,13 @@ Public Class Canvas
 
     Private Sub colourBtn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles colourBtn.Click 'Change colour of canvas
 
-        ColorDialog1.ShowDialog()  'Opens up a menu to select a colour
-        canvasPnl.BackColor = Me.ColorDialog1.Color  'Changes canvas colour to colour selected
+        Dim colourSelector As ColorDialog = New ColorDialog
+        colourSelector.ShowDialog()  'Opens up a menu to select a colour
 
-        Dim colourChosen = Me.ColorDialog1.Color.ToArgb.ToString("X6")  'Converts argb integer to Hex 
+
+        canvasPnl.BackColor = colourSelector.Color  'Changes canvas colour to colour selected
+
+        Dim colourChosen = colourSelector.Color.ToArgb.ToString("X6")  'Converts argb integer to Hex 
         Dim hexCode As String = ""  'holds the hexcode of colour chosen which CSS will use
 
         For i = 2 To 7  'Start from 2 to ignore the alpha part of the original hexcode
@@ -760,7 +765,6 @@ Public Class Canvas
         For Each obj In objectStack 'Change the bg of each object to the back colour of the canvas panel
             obj.BackColor = canvasPnl.BackColor
         Next
-
 
         writeAllCss(cssContents)
     End Sub
@@ -1147,6 +1151,46 @@ Public Class Canvas
 
  
 
+    Private Sub BackToMainMenuToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BackToMainMenuToolStripMenuItem.Click 'Show main menu
+        mainMenu.Show()
+        closeAllFiles() 'Close all files so no  errors when opening back again
+
+        Me.Dispose()
+    End Sub
+
+    Private Sub ChangeTitleToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ChangeTitleToolStripMenuItem.Click 'Change the title in html
+        Dim newTitle As String = InputBox("Enter a title", "Enter title") 'get input of the title name of their choice
+
+        Dim htmlContents = readAllHTML() 'Get html in an array
+
+        For i = 0 To htmlContents.count() - 1 'Go through html list
+            If htmlContents(i).contains("<title>") And htmlContents(i).contains("</title>") Then 'If its the title
+                htmlContents(i) = "<title>" & newTitle & "</title>" 'Set the title to page name
+                Exit For 'Stop looping because text changed in html
+            End If
+        Next
+        writeAllHtml(htmlContents) 'Write changes into html
+    End Sub
+
+    Private Sub ChangeIconToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ChangeIconToolStripMenuItem.Click 'Change icon in html
+
+        Dim htmlContents = readAllHTML() 'Get html in an array
+
+        For i = 0 To htmlContents.count() - 1 'Go through html list
+            If htmlContents(i).contains("link rel='icon") Then 'If its the icon 
+
+                Dim imageSelector As OpenFileDialog = New OpenFileDialog 'Make filedialog
+                imageSelector.ShowDialog() 'Show dialog
+                Dim tempFileLocation = imageSelector.FileName 'location of file
+                imageSelector.Dispose() 'Delete filedialog
+
+                htmlContents(i) = "<link rel='icon' href='" & tempFileLocation & "' type='image/x-icon>'" 'Set the title to page name
+                Exit For 'Stop looping because text changed in html
+            End If
+        Next
+        writeAllHtml(htmlContents) 'Write changes into html
+
+    End Sub
 End Class
 
 
