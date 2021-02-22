@@ -1,4 +1,6 @@
-﻿Public Class dbObj   'The attributes that all objects will have
+﻿Imports System.IO
+Imports System.Data.OleDb
+Public Class dbObj   'The attributes that all objects will have
 
     Public objName As String 'The name of the object
 
@@ -12,6 +14,14 @@
 
     Public text As String 'Headding, paragraph and anchor attribute
     Public fontSize As Integer
+    Public fontColour As String
+
+
+
+
+
+
+
 End Class
 
 

@@ -22,6 +22,7 @@ Partial Class Canvas
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.makePicBoxBtn = New System.Windows.Forms.Button()
         Me.canvasPnl = New System.Windows.Forms.Panel()
         Me.btn_save = New System.Windows.Forms.Button()
@@ -45,9 +46,14 @@ Partial Class Canvas
         Me.BackToMainMenuToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ChangeTitleToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ChangeIconToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.rightClickMenu = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.ChangeFontSizeToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ChangeFontColourToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ChangeImageToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.toolboxPnl.SuspendLayout()
         CType(Me.trashPic, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.menuStrip.SuspendLayout()
+        Me.rightClickMenu.SuspendLayout()
         Me.SuspendLayout()
         '
         'makePicBoxBtn
@@ -277,6 +283,30 @@ Partial Class Canvas
         Me.ChangeIconToolStripMenuItem.Size = New System.Drawing.Size(177, 22)
         Me.ChangeIconToolStripMenuItem.Text = "Change icon"
         '
+        'rightClickMenu
+        '
+        Me.rightClickMenu.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ChangeFontSizeToolStripMenuItem, Me.ChangeFontColourToolStripMenuItem, Me.ChangeImageToolStripMenuItem})
+        Me.rightClickMenu.Name = "rightClickMenu"
+        Me.rightClickMenu.Size = New System.Drawing.Size(178, 92)
+        '
+        'ChangeFontSizeToolStripMenuItem
+        '
+        Me.ChangeFontSizeToolStripMenuItem.Name = "ChangeFontSizeToolStripMenuItem"
+        Me.ChangeFontSizeToolStripMenuItem.Size = New System.Drawing.Size(177, 22)
+        Me.ChangeFontSizeToolStripMenuItem.Text = "Change font size"
+        '
+        'ChangeFontColourToolStripMenuItem
+        '
+        Me.ChangeFontColourToolStripMenuItem.Name = "ChangeFontColourToolStripMenuItem"
+        Me.ChangeFontColourToolStripMenuItem.Size = New System.Drawing.Size(177, 22)
+        Me.ChangeFontColourToolStripMenuItem.Text = "Change font colour"
+        '
+        'ChangeImageToolStripMenuItem
+        '
+        Me.ChangeImageToolStripMenuItem.Name = "ChangeImageToolStripMenuItem"
+        Me.ChangeImageToolStripMenuItem.Size = New System.Drawing.Size(177, 22)
+        Me.ChangeImageToolStripMenuItem.Text = "Change image"
+        '
         'Canvas
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -298,6 +328,7 @@ Partial Class Canvas
         CType(Me.trashPic, System.ComponentModel.ISupportInitialize).EndInit()
         Me.menuStrip.ResumeLayout(False)
         Me.menuStrip.PerformLayout()
+        Me.rightClickMenu.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -325,5 +356,9 @@ Partial Class Canvas
     Friend WithEvents BackToMainMenuToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ChangeTitleToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ChangeIconToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents rightClickMenu As System.Windows.Forms.ContextMenuStrip
+    Friend WithEvents ChangeFontSizeToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ChangeFontColourToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ChangeImageToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
 
 End Class

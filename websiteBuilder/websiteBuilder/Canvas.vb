@@ -212,12 +212,15 @@ Public Class Canvas
                 cssChangeSize(sender) 'Change size in css if on panel
 
             End If
+
+          
         End If
 
 
     End Sub
 
     Private Sub MyMouseClick(ByVal sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles createdObj.Click 'If mouse click 
+
 
     End Sub
 
@@ -336,9 +339,8 @@ Public Class Canvas
         moveableObj.Height = sizeY
         moveableObj.Top = locY     'Set location
         moveableObj.Left = locX
-
         moveableObj.BackColor = canvasPnl.BackColor 'Change the background of obj to match the panel back
-
+        moveableObj.ContextMenuStrip = rightClickMenu 'Show a menu to let them change things like font size and colour
 
         AddHandler moveableObj.MouseDown, AddressOf Me.MyMouseDown  'Adds action to the objects
         AddHandler moveableObj.MouseMove, AddressOf Me.MyMouseMove
@@ -582,7 +584,7 @@ Public Class Canvas
 
                 End If
 
-                writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY) 'Write the class
+                writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY, currentObj.Font.Size) 'Write the class
 
 
             Else 'Else, that it is on the panel but its already been written in html, it means position has been changed. 
@@ -599,7 +601,7 @@ Public Class Canvas
         closeAllFiles()
     End Sub
 
-    Sub writeToCss(ByVal objectName, ByVal sizeX, ByVal sizeY, ByVal locX, ByVal locY) 'Writing the classes
+    Sub writeToCss(ByVal objectName, ByVal sizeX, ByVal sizeY, ByVal locX, ByVal locY, ByVal fontSize) 'Writing the classes
 
         cssWriter.WriteLine("." & objectName & "{")  'Writing css class, these are the generic properties each obj will have
         cssWriter.WriteLine("left: " & locX & "px;")
@@ -612,7 +614,8 @@ Public Class Canvas
 
 
         ElseIf objectName.Contains("Para") Then 'If paragraph element
-            cssWriter.WriteLine("font-size: " & "15px;")
+            cssWriter.WriteLine("font-size:" & fontSize & "px;")
+            cssWriter.WriteLine("color:" & fontSize & "px;")
 
         End If
 
@@ -947,17 +950,31 @@ Public Class Canvas
         Dim objName = obj.Name 'Set name
         Dim objID = getObjID(objName) 'Set objectID
 
+      
+
         Try
             myConnection.ConnectionString = connectString
             myConnection.Open()
             Dim query As String
-            If type = "Location" Then 'If changing location
-                query = "UPDATE [objects] SET [LocationX] = " & obj.Location.X & ", [LocationY] = " & obj.Location.Y & " WHERE [ObjectID] = " & objID
-            ElseIf type = "Size" Then 'If changing size
-                query = "UPDATE [objects] SET [SizeX] = " & obj.Width & ", [SizeY] = " & obj.Height & " WHERE [ObjectID] = " & objID
-            ElseIf type = "Text" Then 'If changing text
-                query = "UPDATE [objects] SET [TextInput] = '" & obj.Text & "' WHERE [ObjectID] = " & objID
-            End If
+            Select Case type
+                Case "Location" 'If changing location
+                    query = "UPDATE [objects] SET [LocationX] = " & obj.Location.X & ", [LocationY] = " & obj.Location.Y & " WHERE [ObjectID] = " & objID
+                Case "Size" 'If changing size
+                    query = "UPDATE [objects] SET [SizeX] = " & obj.Width & ", [SizeY] = " & obj.Height & " WHERE [ObjectID] = " & objID
+                Case "Text" 'If changing text
+                    query = "UPDATE [objects] SET [TextInput] = '" & obj.Text & "' WHERE [ObjectID] = " & objID
+                Case "FontSize" 'If changing font size
+                    query = "UPDATE [objects] SET [FontSize] = '" & obj.Font.Size & "' WHERE [ObjectID] = " & objID
+                Case "FontColour" 'If changing font colour
+                    query = "UPDATE [objects] SET [FontColour] = '" & obj.ForeColor.ToArgb().ToString & "' WHERE [ObjectID] = " & objID
+                Case "Image"
+                    query = "UPDATE [objects] SET [FileLocation] = '" & obj.ImageLocation.ToString & "' WHERE [ObjectID] = " & objID
+            End Select
+        
+
+
+
+
 
             'Changes size or position
             Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
@@ -1032,7 +1049,6 @@ Public Class Canvas
         End Try
     End Sub
 
-
     Sub loadObjects() 'Load all objects from objects table 
         Dim objCounter = -1 'Current obj from db
 
@@ -1058,7 +1074,7 @@ Public Class Canvas
                 objCounter += 1 'Increment amount of objects
                 objStorage.Add(objCounter, dbObj) 'Add obj and current counter into dictionary
 
-                For j = 2 To 9 'Go through the attributes. Start from 2 to ignore ID's
+                For j = 2 To 10 'Go through the attributes. Start from 2 to ignore ID's
 
                     Select Case j 'Set the attributes
                         Case 2
@@ -1077,6 +1093,8 @@ Public Class Canvas
                             objStorage(objCounter).text = (objectArray(i).ItemArray(j)).ToString
                         Case 9
                             objStorage(objCounter).fontSize = objectArray(i).ItemArray(j)
+                        Case 10
+                            objStorage(objCounter).fontColour = objectArray(i).ItemArray(j)
                     End Select
                 Next
 
@@ -1091,6 +1109,9 @@ Public Class Canvas
 
     End Sub
 
+
+    
+
     Sub recreateObj(ByVal objStorage) 'Recreate the object
         Dim amountOfOjbs As Integer = objStorage.Count - 1
         Dim objName As String
@@ -1102,6 +1123,7 @@ Public Class Canvas
         Dim fileLoc As String
         Dim text As String
         Dim fontSize As Integer
+        Dim fontColour As Color
 
         For i = 0 To amountOfOjbs 'Go through every object in dictionary
 
@@ -1113,6 +1135,10 @@ Public Class Canvas
             fileLoc = objStorage(i).fileLoc
             text = objStorage(i).Text
             fontSize = objStorage(i).fontSize
+
+
+            fontColour = Color.FromArgb(objStorage(i).fontColour)
+
 
             If objName.Contains("Pic") Then
                 Dim tempPic As New PictureBox   'Instantiates new picture box
@@ -1129,6 +1155,7 @@ Public Class Canvas
                 tempPara.Name = objName 'Set name
                 tempPara.Text = text 'Set text in textbox
                 tempPara.Font = New Font(tempPara.Font.FontFamily, fontSize) 'Change font size
+                tempPara.ForeColor = fontColour 'Set font colour
                 configureObjects(tempPara, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
 
             ElseIf objName.Contains("Heading") Then
@@ -1136,7 +1163,7 @@ Public Class Canvas
                 tempHeading.Name = objName 'Set name
                 tempHeading.Font = New Font(tempHeading.Font.FontFamily, fontSize) 'Change font size
                 tempHeading.Text = text 'Set text in textbox
-
+                tempHeading.ForeColor = fontColour 'Set font colour
                 configureObjects(tempHeading, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
             End If
 
@@ -1147,8 +1174,6 @@ Public Class Canvas
         Next
 
     End Sub
-
-
  
 
     Private Sub BackToMainMenuToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BackToMainMenuToolStripMenuItem.Click 'Show main menu
@@ -1190,6 +1215,101 @@ Public Class Canvas
         Next
         writeAllHtml(htmlContents) 'Write changes into html
 
+    End Sub
+
+    Private Sub Canvas_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+
+    End Sub
+
+    Private Sub rightClickMenu_Opening(ByVal sender As System.Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles rightClickMenu.Opening
+
+    End Sub
+
+    Private Sub ChangeFontSizeToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ChangeFontSizeToolStripMenuItem.Click 'Change font size to their choice in css and db
+        Dim newFontSize As Integer = InputBox("Enter a font size", "Enter a font size") 'get input of the font size of their choice
+
+        Dim currentObj = sender.GetCurrentParent().SourceControl 'Get the object that is clicked
+        Dim objectName = currentObj.Name
+
+        currentObj.Font = New Font(currentObj.Font.FontFamily.ToString, newFontSize)
+
+        Dim cssContents = readAllCSS()  'Get all css lines in file into an array 
+        Dim length = cssContents.Count() - 1  'Get the amount of lines in css file
+        For i = 0 To cssContents.count() - 1 'Go through css list
+            If cssContents(i).contains(objectName) Then 'If its the object
+                For j = i To cssContents.count() - 1 'Search for the fontsize properties in css 
+                    If cssContents(j).contains("font-size:") Then 'If it has seen a font size property
+                        cssContents(j) = "font-size:" & newFontSize & "px;" 'Change font size
+                        Exit For 'Stop looping because its removed in css
+                        Exit For 'Exit both loops
+                    End If
+                Next
+            End If
+        Next
+
+        dbChangeObjInfo(currentObj, "FontSize") 'Change font size in db, so it can load properly
+        writeAllCss(cssContents) 'Write css contents
+    End Sub
+
+    Private Sub ChangeFontColourToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ChangeFontColourToolStripMenuItem.Click 'Change font colour css and db
+        Dim colourSelector As ColorDialog = New ColorDialog
+        colourSelector.ShowDialog()  'Opens up a menu to select a colour
+
+        Dim currentObj = sender.GetCurrentParent().SourceControl 'Get the object that is clicked
+        Dim objectName = currentObj.Name
+
+        Dim colourChosen = colourSelector.Color.ToArgb.ToString("X6")  'Converts argb integer to Hex 
+        Dim hexCode As String = ""  'holds the hexcode of colour chosen which CSS will use
+
+        For i = 2 To 7  'Start from 2 to ignore the alpha part of the original hexcode
+            hexCode += colourChosen(i)
+        Next
+
+        currentObj.ForeColor = colourSelector.Color 'Change font colour
+
+        Dim cssContents = readAllCSS()  'Get all css lines in file into an array 
+        Dim length = cssContents.Count() - 1  'Get the amount of lines in css file
+        For i = 0 To cssContents.count() - 1 'Go through css list
+            If cssContents(i).contains(objectName) Then 'If its the object
+                For j = i To cssContents.count() - 1 'Search for the colour in css 
+                    If cssContents(j).contains("color:") Then 'If it has seen a colour property
+                        cssContents(j) = "color:#" & hexCode & ";" 'Change colour
+                        Exit For 'Stop looping because its changed in css
+                        Exit For 'Exit both loops
+                    End If
+                Next
+            End If
+        Next
+
+        dbChangeObjInfo(currentObj, "FontColour") 'Change font size in db, so it can load properly
+        writeAllCss(cssContents) 'Write css contents
+
+    End Sub
+
+    Private Sub ChangeImageToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ChangeImageToolStripMenuItem.Click 'Change image in html and db
+        Dim currentObj = sender.GetCurrentParent().SourceControl 'Get the object that is clicked
+        Dim objectName = currentObj.Name
+
+        Dim imageSelector As OpenFileDialog = New OpenFileDialog 'Show file selector
+        imageSelector.ShowDialog()
+        Dim tempFileLocation = imageSelector.FileName 'get filelocation
+
+        currentObj.Load(tempFileLocation) 'Set the pic to what they choose
+        imageSelector.Dispose()
+
+        Dim htmlContents = readAllHTML()
+        For i = 0 To htmlContents.count() - 1 'Go through html list
+            If htmlContents(i).contains(objectName) Then 'If its the object
+
+                htmlContents(i) = "<img src='" & tempFileLocation & "' class ='" & objectName & "' " & "alt='test'>" 'write an image
+
+
+                Exit For 'Stop looping because text changed in html
+            End If
+        Next
+
+        writeAllHtml(htmlContents)
+        dbChangeObjInfo(currentObj, "Image")
     End Sub
 End Class
 
