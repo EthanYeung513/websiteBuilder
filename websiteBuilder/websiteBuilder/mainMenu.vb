@@ -28,7 +28,7 @@ Public Class mainMenu
 
         fileDirectory = My.Application.Info.DirectoryPath & "\" & folderName & "\" 'Get the path
 
-        pageWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & pageName, True) 'Create new files to write to 
+        pageWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & pageName, True) 'Set writers to write to files
         cssWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & "style.css", True)
 
         Me.Dispose() 'Destroy this form

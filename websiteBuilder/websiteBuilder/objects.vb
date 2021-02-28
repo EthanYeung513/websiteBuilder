@@ -14,7 +14,7 @@ Public Class dbObj   'The attributes that all objects will have
 
     Public text As String 'Headding, paragraph and anchor attribute
     Public fontSize As Integer
-    Public fontColour As String
+    Public fontColour As Integer
 
 
 

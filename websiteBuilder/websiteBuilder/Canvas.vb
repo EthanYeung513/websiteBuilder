@@ -199,9 +199,9 @@ Public Class Canvas
     Private Sub MyMouseUp(ByVal sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles createdObj.MouseUp  'If mouse lets go 
         dragging = False 'Set to false 
         If moveMode = True Then 'When they let go on movemode
-            If removeObject(sender) = True Then 'Check if obj on trashcan, if it is, delete. Return true if deleted
-                Exit Sub 'Dont continue with sub
-            End If
+            'If removeObject(sender) = True Then 'Check if obj on trashcan, if it is, delete. Return true if deleted
+            '    Exit Sub 'Dont continue with sub
+            'End If
             writeToHtml(sender) 'Write object to html if on panel
 
 
@@ -242,7 +242,7 @@ Public Class Canvas
 
             Dim tempPic As New PictureBox   'Instantiates new picture box
 
-            tempPic.Name = "Pic" + picCounter.ToString  'Makes name the photo plus the current picbox counter
+            tempPic.Name = "Pic" & picCounter.ToString  'Makes name the photo plus the current picbox counter
             tempPic.SizeMode = PictureBoxSizeMode.StretchImage 'Make picturebox resize to whatever the image is
 
             Dim picError As Boolean = True  'If picError stays true, then there's an error 
@@ -425,65 +425,65 @@ Public Class Canvas
     End Sub
 
 
-    Function removeObject(ByRef currentObj) 'Check if on the trash can and then if it is, delete it. Return true if deleted obj
-        Dim objectName As String = currentObj.Name 'Set the name of the object
+    'Function removeObject(ByRef currentObj) 'Check if on the trash can and then if it is, delete it. Return true if deleted obj
+    '    Dim objectName As String = currentObj.Name 'Set the name of the object
 
 
-        If currentObj.Location.X >= trashPic.Location.X And currentObj.Location.Y >= trashPic.Location.Y Then 'If object on trashcan
-            If onCanvas.Contains(currentObj) Then 'If its on the onCanvas list
-                onCanvas.Remove(currentObj)   'Remove it
-                removeObjFromFiles(objectName) 'Delete from files
-            End If
+    '    If currentObj.Location.X >= trashPic.Location.X And currentObj.Location.Y >= trashPic.Location.Y Then 'If object on trashcan
+    '        If onCanvas.Contains(currentObj) Then 'If its on the onCanvas list
+    '            onCanvas.Remove(currentObj)   'Remove it
+    '            removeObjFromFiles(objectName) 'Delete from files
+    '        End If
 
-            dbRemoveObj(objectName) 'Delete from db 
-
-
-            'Remake stack, because you can't remove by index 
-            Dim tempList As New List(Of Object) 'Make a list
-            While objectStack.Count <> 0 'While theres not nothing in stack
-                Dim tempObjName = objectStack.Peek().Name
-                If tempObjName <> objectName Then 'If the object on stack is not the object that's being deleted
-                    tempList.Add(objectStack.Peek()) 'Add the top of stack to 
-
-                End If
-
-                Try
-                    objectStack.Pop() 'Delete that obj off stack
-                Catch
-                End Try
-            End While
-
-            tempList.Reverse()  'Reverse list because first in first out for stack
-            For Each obj In tempList 'Go through every object in templist
-                objectStack.Push(obj) 'Add in the obj
-
-            Next
-            y -= 60 'Change the coords that next obj will spawn
-            currentObj.Dispose() 'Destroy obj
+    '        dbRemoveObj(objectName) 'Delete from db 
 
 
-            'Increment counters. Even tho its deleting, in order to have unique names, it must go up.
-            'It would not work if decrementing because if we had para1 and para2, and we deleted para1, the next object would 
-            'Have a counter = 2, which would cause an issue 
+    '        'Remake stack, because you can't remove by index 
+    '        Dim tempList As New List(Of Object) 'Make a list
+    '        While objectStack.Count <> 0 'While theres not nothing in stack
+    '            Dim tempObjName = objectStack.Peek().Name
+    '            If tempObjName <> objectName Then 'If the object on stack is not the object that's being deleted
+    '                tempList.Add(objectStack.Peek()) 'Add the top of stack to 
 
-            If objectName.Contains("Para") Then  'If the obj was a paragraph, increment counter of paraCounter
-                paraCounter += 1
-            ElseIf objectName.Contains("Pic") Then 'If the obj was a picBox, increment  counter of picCounter
-                picCounter += 1
-            ElseIf objectName.Contains("Heading") Then 'If the obj was a heading, increment  counter of headingCounter
-                headingCounter += 1
-            ElseIf objectName.Contains("Anchor") Then 'If the obj was a anchor, increment  counter of anchorCounter
-                anchorCounter += 1
-            End If
-            totalCounter -= 1
+    '            End If
 
-            dbUpdateCounters() ''Update counters in the db
+    '            Try
+    '                objectStack.Pop() 'Delete that obj off stack
+    '            Catch
+    '            End Try
+    '        End While
 
-            Return True
-        End If
-        Return False
+    '        tempList.Reverse()  'Reverse list because first in first out for stack
+    '        For Each obj In tempList 'Go through every object in templist
+    '            objectStack.Push(obj) 'Add in the obj
 
-    End Function
+    '        Next
+    '        y -= 60 'Change the coords that next obj will spawn
+    '        currentObj.Dispose() 'Destroy obj
+
+
+    '        'Increment counters. Even tho its deleting, in order to have unique names, it must go up.
+    '        'It would not work if decrementing because if we had para1 and para2, and we deleted para1, the next object would 
+    '        'Have a counter = 2, which would cause an issue 
+
+    '        If objectName.Contains("Para") Then  'If the obj was a paragraph, increment counter of paraCounter
+    '            paraCounter += 1
+    '        ElseIf objectName.Contains("Pic") Then 'If the obj was a picBox, increment  counter of picCounter
+    '            picCounter += 1
+    '        ElseIf objectName.Contains("Heading") Then 'If the obj was a heading, increment  counter of headingCounter
+    '            headingCounter += 1
+    '        ElseIf objectName.Contains("Anchor") Then 'If the obj was a anchor, increment  counter of anchorCounter
+    '            anchorCounter += 1
+    '        End If
+    '        totalCounter -= 1
+
+    '        dbUpdateCounters() ''Update counters in the db
+
+    '        Return True
+    '    End If
+    '    Return False
+
+    'End Function
 
 
 
@@ -613,9 +613,16 @@ Public Class Canvas
         If objectName.Contains("Pic") Then  'If it's a picturebox
 
 
-        ElseIf objectName.Contains("Para") Then 'If paragraph element
+        ElseIf objectName.Contains("Para") Or objectName.Contains("Heading") Then 'If paragraph or heading element
             cssWriter.WriteLine("font-size:" & fontSize & "px;")
-            cssWriter.WriteLine("color:" & fontSize & "px;")
+
+            'Dim colourChosen As String = objectName.ForeColor.ToArgb.ToString("X6")  'Converts argb integer to Hex 
+            'Dim hexCode As String = ""  'holds the hexcode of colour chosen which CSS will use
+
+            'For i = 2 To 7  'Start from 2 to ignore the alpha part of the original hexcode
+            '    hexCode += colourChosen(i)
+            'Next
+            cssWriter.WriteLine("color: px;")
 
         End If
 
@@ -1092,9 +1099,14 @@ Public Class Canvas
                         Case 8
                             objStorage(objCounter).text = (objectArray(i).ItemArray(j)).ToString
                         Case 9
-                            objStorage(objCounter).fontSize = objectArray(i).ItemArray(j)
+                            If objectArray(i).ItemArray(j).ToString.Length <> 0 Then 'If empty, it will create an error because its an integer, so check if empty beforehand
+                                objStorage(objCounter).fontSize = objectArray(i).ItemArray(j)
+                            End If
+
                         Case 10
-                            objStorage(objCounter).fontColour = objectArray(i).ItemArray(j)
+                            If objectArray(i).ItemArray(j).ToString.Length <> 0 Then 'If empty, it will create an error because its an integer, so check if empty beforehand
+                                objStorage(objCounter).fontColour = objectArray(i).ItemArray(j)
+                            End If
                     End Select
                 Next
 
@@ -1135,7 +1147,6 @@ Public Class Canvas
             fileLoc = objStorage(i).fileLoc
             text = objStorage(i).Text
             fontSize = objStorage(i).fontSize
-
 
             fontColour = Color.FromArgb(objStorage(i).fontColour)
 
@@ -1226,12 +1237,19 @@ Public Class Canvas
     End Sub
 
     Private Sub ChangeFontSizeToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ChangeFontSizeToolStripMenuItem.Click 'Change font size to their choice in css and db
-        Dim newFontSize As Integer = InputBox("Enter a font size", "Enter a font size") 'get input of the font size of their choice
+        Dim newFontSize As Integer
+        Try
+            newFontSize = InputBox("Enter a font size", "Enter a font size") 'get input of the font size of their choice
+
+        Catch
+            MessageBox.Show("Must enter a number") 'It will create an error if not a number
+            Exit Sub 'Don't continue with the sub
+        End Try
 
         Dim currentObj = sender.GetCurrentParent().SourceControl 'Get the object that is clicked
-        Dim objectName = currentObj.Name
+        Dim objectName = currentObj.Name 'Set name
 
-        currentObj.Font = New Font(currentObj.Font.FontFamily.ToString, newFontSize)
+        currentObj.Font = New Font(currentObj.Font.FontFamily.ToString, newFontSize) 'Set the new font of the object
 
         Dim cssContents = readAllCSS()  'Get all css lines in file into an array 
         Dim length = cssContents.Count() - 1  'Get the amount of lines in css file
@@ -1240,7 +1258,7 @@ Public Class Canvas
                 For j = i To cssContents.count() - 1 'Search for the fontsize properties in css 
                     If cssContents(j).contains("font-size:") Then 'If it has seen a font size property
                         cssContents(j) = "font-size:" & newFontSize & "px;" 'Change font size
-                        Exit For 'Stop looping because its removed in css
+                        Exit For
                         Exit For 'Exit both loops
                     End If
                 Next
