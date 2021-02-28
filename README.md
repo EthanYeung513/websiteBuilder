@@ -2,7 +2,6 @@
 
 ### Website-builder
 
-[![HitCount](http://hits.dwyl.com/EthanYeung513/websiteBuilder.svg)](http://hits.dwyl.com/EthanYeung513/websiteBuilder)
 
 
 This project will allow users to create websites through a drag and drop system in a windows application. 
