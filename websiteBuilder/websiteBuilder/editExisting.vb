@@ -20,7 +20,7 @@ Public Class editExisting
             fileDirectory = My.Application.Info.DirectoryPath & "\" & folderName & "\" 'Get the path
 
             pageWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & pageName, False) 'Setup writers of the new page
-            cssWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & "style.css", False)
+            cssWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & "style.css", True)
 
 
             Canvas.writeTemplate() 'Write html and css template
@@ -40,13 +40,9 @@ Public Class editExisting
             connectString = provider & dataFile
             myConnection.ConnectionString = connectString
             myConnection.Open()
-            Dim query As String = "INSERT INTO [html] ([WebsiteID], [Filename], [ImageCount], [ParagraphCount], [HeadingCount], [AnchorCount]) VALUES (" _
+            Dim query As String = "INSERT INTO [html] ([WebsiteID], [Filename]) VALUES (" _
                                   & "'" & websiteID & "'," _
-                                  & "'" & pageName & "'," _
-                                  & "'" & 0 & "'," _
-                                  & "'" & 0 & "'," _
-                                  & "'" & 0 & "'," _
-                                  & "'" & 0 & "');"
+                                  & "'" & pageName & "');"
             'Inserting 0's into the counter
             Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
             command.ExecuteNonQuery()

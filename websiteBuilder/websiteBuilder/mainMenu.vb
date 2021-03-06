@@ -19,8 +19,10 @@ Public Class mainMenu
 
     Private Sub btn_load_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btn_loadPrevious.Click 'Load last edited website in the canvas
 
-        getPreviousWorkedOn() 'Get information about the previously worked on website and page
-
+        If getPreviousWorkedOn() = False Then 'Get information about the previously worked on website and page, will return false if error (caused by no previous website)
+            MsgBox("You must create a website before selecting this option")
+            Exit Sub
+        End If
         Dim canvasFrm As Canvas = New Canvas 'Show the canvas
         canvasFrm.Show()
 
@@ -35,7 +37,7 @@ Public Class mainMenu
     End Sub
 
 
-    Sub getPreviousWorkedOn() 'Get the details of the last worked on website
+    Function getPreviousWorkedOn() 'Get the details of the last worked on website
 
         Try 'Get the IDs of the last  worked on 
             myConnection.ConnectionString = connectString
@@ -51,9 +53,9 @@ Public Class mainMenu
             myConnection.Close()
 
         Catch ex As Exception    'If error, it means no previous website loaded before
-            MsgBox("No website found.")
             myConnection.Close()
-            Exit Sub
+            Return False
+            Exit Function
         End Try
 
 
@@ -71,9 +73,9 @@ Public Class mainMenu
             myConnection.Close()
 
         Catch ex As Exception    'If error, it means no previous website loaded before
-            MsgBox("No website found.")
             myConnection.Close()
-            Exit Sub
+            Return False
+            Exit Function
         End Try
 
 
@@ -91,20 +93,22 @@ Public Class mainMenu
             myConnection.Close()
 
         Catch ex As Exception    'If error, it means no previous website loaded before
-            MsgBox("No page found")
             myConnection.Close()
-            Exit Sub
+            Return False
+            Exit Function
         End Try
 
-    End Sub
+        Return True
+    End Function
 
 
     Public Sub newFolder() 'Setup new folder 
         folderName = username & "_" & websiteName  'Make folder name using their username and website name
         My.Computer.FileSystem.CreateDirectory(folderName) 'Create folder 
+        My.Computer.FileSystem.CreateDirectory(My.Application.Info.DirectoryPath & "\" & folderName & "\assets\") 'Create an assets folder for media such as images
         fileDirectory = My.Application.Info.DirectoryPath & "\" & folderName & "\" 'Get the path
 
-        pageName = "index.html"
+        pageName = "index.html" 'First page will be called index
 
         pageWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & pageName, False) 'Create new files to write to 
         cssWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & "style.css", False)

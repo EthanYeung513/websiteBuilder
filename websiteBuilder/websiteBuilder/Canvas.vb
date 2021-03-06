@@ -56,7 +56,7 @@ Public Class Canvas
 
         setLastWorkedOn() 'Update the previous website worked on so it can be loaded
 
-        getCurrentCounters() 'Set the counters 
+        getCurrentCounters() 'Set the counter variables
 
         Me.KeyPreview = True 'Allow program to capture key down
 
@@ -65,7 +65,7 @@ Public Class Canvas
 
 
         lbl_username.Text = username & " > "  'Change the label text to show the info of the website
-        lbl_webName.Text = websiteName & " > "
+        lbl_webName.Text = websiteName & " > " '(These labels are located on top right of the form)
         lbl_pageName.Text = pageName
 
         allModes.Push(moveMode)  'Push movemode to stack because on default, its on 
@@ -84,6 +84,14 @@ Public Class Canvas
         pageWriter.WriteLine("<link rel='stylesheet' href='style.css'>")  'Link external CSS
         pageWriter.WriteLine("</Head>") 'Close head tag
         pageWriter.WriteLine("<Body>")
+
+
+        'For i = 0 To 59     'Leave space for the closing tags of body and html
+        '    pageWriter.WriteLine("")
+        'Next
+        'pageWriter.WriteLine("</body>") 'Close of the body
+        'pageWriter.WriteLine("</HTML>")  'Close of the page
+
 
 
         'Writes CSS
@@ -237,32 +245,29 @@ Public Class Canvas
 
     Private Sub makePicBoxBtn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles makePicBoxBtn.Click 'When click button, make a picBox
         If allowAdd = True Then
+
+            Dim tempPic As New PictureBox   'Instantiates new picture box
+            tempPic.SizeMode = PictureBoxSizeMode.StretchImage 'Make picturebox resize to whatever the image is
+
+
+            Dim tempFileLocation As String = getImage() 'ask for the user for an image and then copy it into the assets folder and return the file location
+
+            If tempFileLocation.Length = 0 Then 'If no image selected, exit sub
+                tempPic.Dispose() 'Delete object
+                Exit Sub 'Dont continue with sub
+            End If
+
+            tempPic.Load(tempFileLocation)  'Set the pic to what they choose
+
             picCounter += 1 'Increment amount of picbox counter
             totalCounter += 1 'Increment total amount of objects
 
-            Dim tempPic As New PictureBox   'Instantiates new picture box
+
 
             tempPic.Name = "Pic" & picCounter.ToString  'Makes name the photo plus the current picbox counter
-            tempPic.SizeMode = PictureBoxSizeMode.StretchImage 'Make picturebox resize to whatever the image is
 
-            Dim picError As Boolean = True  'If picError stays true, then there's an error 
-            While picError = True  'Keep attempting to choose a pic until no error
-                Try  'If there's an error it won't crash
-
-                    Dim imageSelector As OpenFileDialog = New OpenFileDialog
-                    imageSelector.ShowDialog()
-                    Dim tempFileLocation = imageSelector.FileName '
-
-                    tempPic.Load(tempFileLocation) 'Set the pic to what they choose
-                    imageSelector.Dispose()
-
-                    picError = False
-                Catch ex As Exception
-                    Exit Sub 'Exit creating the image
-                End Try
-            End While
-            checkUiOverflow()
-            configureObjects(tempPic, True, x, y, 50, 50)
+            checkUiOverflow() 'Check if objects goes outside of panel
+            configureObjects(tempPic, True, x, y, 50, 50) 'Adds functionality
 
         End If
 
@@ -332,6 +337,41 @@ Public Class Canvas
         End If
     End Sub
 
+
+    Function getImage() 'This function will ask for the user for an image and then copy it into the assets folder and return the file location
+        Dim picError As Boolean = True  'If picError stays true, then there's an error 
+        Dim tempFileLocation As String = ""
+        Dim imageName As String = ""
+
+        Dim imageSelector As OpenFileDialog
+
+        Try '
+            imageSelector = New OpenFileDialog
+            imageSelector.ShowDialog()
+        Catch
+            Return "" 'Return null to indicate error
+        End Try
+        tempFileLocation = imageSelector.FileName 'set the filename 
+        imageName = imageSelector.SafeFileName
+
+        imageSelector.Dispose() 'Dispose image selector
+
+        If tempFileLocation.Length = 0 Then 'If not selected image, return nothing to signal this.
+            Return "" 'Return null to indicate error
+        End If
+
+        Try 'Will trigger when they select an image thats already copied to the assets folder
+            My.Computer.FileSystem.CopyFile(tempFileLocation, fileDirectory & "assets\" & imageName) 'Copy the image into the assets folder
+        Catch 'Continue as normal without copying the file again
+
+        End Try
+        tempFileLocation = fileDirectory & "assets\" & imageName 'Update file directory to the one in assets folder
+
+        Return tempFileLocation
+    End Function
+
+
+
     Private Sub configureObjects(ByVal moveableObj As Control, ByVal newObj As Boolean, ByVal locX As Integer, ByVal locY As Integer, ByVal sizeX As Integer, ByVal sizeY As Integer)  'Add handlers and adding object to the stack
 
         moveableObj.AutoSize = False
@@ -381,16 +421,22 @@ Public Class Canvas
         y -= 60
         allowAdd = True  'Allow user to add more objects
 
-        If objType.Contains("Para") Then  'If the obj was a paragraph, decrement counter of paraCounter
-            paraCounter -= 1
-        ElseIf objType.Contains("Pic") Then 'If the obj was a picBox, decrement counter of picCounter
-            picCounter -= 1
-        ElseIf objType.Contains("Heading") Then 'If the obj was a heading, decrement counter of headingCounter
-            headingCounter -= 1
-        ElseIf objType.Contains("Anchor") Then 'If the obj was a anchor, decrement counter of anchorCounter
-            anchorCounter -= 1
+        'Increment counters. Even tho its deleting, in order to have unique class names in css, it must go up.
+        'It would not work if decrementing because if we had para1 and para2, and we deleted para1, the next object would 
+        'Have a counter = 2, which would cause an issue 
+
+
+
+        If objType.Contains("Para") Then  'If the obj was a paragraph, increment counter of paraCounter
+            paraCounter += 1
+        ElseIf objType.Contains("Pic") Then 'If the obj was a picBox, increment counter of picCounter
+            picCounter += 1
+        ElseIf objType.Contains("Heading") Then 'If the obj was a heading, increment counter of headingCounter
+            headingCounter += 1
+        ElseIf objType.Contains("Anchor") Then 'If the obj was a anchor, increment counter of anchorCounter
+            anchorCounter += 1
         End If
-        totalCounter -= 1  'Decrement total amount of objects counter
+        totalCounter += 1  'Decrement total amount of objects counter
 
     End Sub
 
@@ -462,7 +508,7 @@ Public Class Canvas
     '        currentObj.Dispose() 'Destroy obj
 
 
-    '        'Increment counters. Even tho its deleting, in order to have unique names, it must go up.
+    '        'Increment counters. Even tho its deleting, in order to have unique class names in css, it must go up.
     '        'It would not work if decrementing because if we had para1 and para2, and we deleted para1, the next object would 
     '        'Have a counter = 2, which would cause an issue 
 
@@ -582,9 +628,23 @@ Public Class Canvas
                     Dim headingType As String = objectName(objectName.Length - 1) 'Get last character, which is the type of heading (1 - 6)
                     pageWriter.WriteLine("<h" & headingType & " class='" & objectName & "'>" & currentObj.Text & "</h" & headingType & ">")
 
+
+
+                ElseIf objectName.Contains("Anchor") Then 'If anchor element
+
+                    Dim link As String = ""      'The href at   tribute in the anchor 
+
+                    link = InputBox("Enter a URL", "Enter URL") 'get input of the title name of their choice
+
+
+
+                    pageWriter.WriteLine("<a href='" & link & "' class='" & objectName & "' target='blank'>" & currentObj.Text & "</a>") 'Write anchor tag
+
+                    dbUpdateAnchorLink(objectName, link) 'Update the file location in the db
+
                 End If
 
-                writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY, currentObj.Font.Size) 'Write the class
+            writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY, currentObj.Font.Size) 'Write the class
 
 
             Else 'Else, that it is on the panel but its already been written in html, it means position has been changed. 
@@ -592,10 +652,11 @@ Public Class Canvas
                 dbChangeObjInfo(currentObj, "Location") 'Change position in db
 
             End If
+
         Else 'Else, the object is not in the canvas panel, remove the object from html and css
-            onCanvas.Remove(currentObj) 'Remove object from the list
-            dbChangeObjInfo(currentObj, "Location") 'Change position in db, because it is still on the form
-            removeObjFromFiles(objectName) 'Remove from html and css
+        onCanvas.Remove(currentObj) 'Remove object from the list
+        dbChangeObjInfo(currentObj, "Location") 'Change position in db, because it is still on the form
+        removeObjFromFiles(objectName) 'Remove from html and css
 
         End If
         closeAllFiles()
@@ -613,7 +674,7 @@ Public Class Canvas
         If objectName.Contains("Pic") Then  'If it's a picturebox
 
 
-        ElseIf objectName.Contains("Para") Or objectName.Contains("Heading") Then 'If paragraph or heading element
+        ElseIf objectName.Contains("Para") Or objectName.Contains("Heading") Or objectName.Contains("Anchor") Then 'If paragraph or heading element
             cssWriter.WriteLine("font-size:" & fontSize & "px;")
 
             'Dim colourChosen As String = objectName.ForeColor.ToArgb.ToString("X6")  'Converts argb integer to Hex 
@@ -714,10 +775,24 @@ Public Class Canvas
             If htmlContents(i).contains(objectName) Then 'If its the object
                 If objectName.Contains("Para") Then 'If its a paragraph
                     htmlContents(i) = "<p class='" & objectName & "'>" & objectText & "</p>"
+
                 ElseIf objectName.Contains("Heading") Then 'If its a heading
                     Dim headingType As String = objectName(objectName.Length - 1) 'Get last character, which is the type of heading (1 - 6)
                     htmlContents(i) = "<h" & headingType & " class='" & objectName & "'>" & objectText & "</h" & headingType & ">"
+                ElseIf objectName.Contains("Anchor") Then 'If its an anchor
 
+                    Dim link As String = "" 'The link of href
+                    For j = 0 To htmlContents(i).length - 1
+                        If htmlContents(i)(j) = "'" Then 'If start of href link
+                            j += 1
+                            While htmlContents(i)(j) <> "'" 'While not the end of the link
+                                link += htmlContents(i)(j) 'Add character to link
+                                j += 1 'Increment j
+                            End While
+                            Exit For
+                        End If
+                    Next
+                    htmlContents(i) = "<a href='" & link & "' class='" & objectName & "' target='bla    nk'>" & objectText & "</a>"
                 End If
                 Exit For 'Stop looping because text changed in html
             End If
@@ -899,7 +974,7 @@ Public Class Canvas
                                       & "'" & sizeX & "'," _
                                       & "'" & sizeY & "'," _
                                       & "'" & fileLoc & "');"
-            ElseIf objectName.Contains("Para") Or objectName.Contains("Heading") Then 'If its a paragraph or heading 
+            ElseIf objectName.Contains("Para") Or objectName.Contains("Heading") Or objectName.Contains("Anchor") Then 'If its a paragraph,heading, or anchor
                 textInp = obj.Text 'Set the text
                 fontSize = obj.Font.Size
                 query = "INSERT INTO [objects] ([HtmlID], [ObjName], [LocationX], [LocationY], [SizeX], [SizeY], [TextInput], [FontSize]) VALUES (" _
@@ -957,8 +1032,6 @@ Public Class Canvas
         Dim objName = obj.Name 'Set name
         Dim objID = getObjID(objName) 'Set objectID
 
-      
-
         Try
             myConnection.ConnectionString = connectString
             myConnection.Open()
@@ -974,7 +1047,7 @@ Public Class Canvas
                     query = "UPDATE [objects] SET [FontSize] = '" & obj.Font.Size & "' WHERE [ObjectID] = " & objID
                 Case "FontColour" 'If changing font colour
                     query = "UPDATE [objects] SET [FontColour] = '" & obj.ForeColor.ToArgb().ToString & "' WHERE [ObjectID] = " & objID
-                Case "Image"
+                Case "Image" 'If changing image
                     query = "UPDATE [objects] SET [FileLocation] = '" & obj.ImageLocation.ToString & "' WHERE [ObjectID] = " & objID
             End Select
         
@@ -1017,11 +1090,11 @@ Public Class Canvas
         Try
             myConnection.ConnectionString = connectString
             myConnection.Open()
-            Dim query As String = "SELECT [ImageCount], [ParagraphCount], [HeadingCount], [AnchorCount] FROM [html] WHERE [HtmlID] = " & htmlID
-            Dim command As OleDbCommand = New OleDbCommand(query, myConnection) 'Get counters from table html
+            Dim query As String = "SELECT [ImageCount], [ParagraphCount], [HeadingCount], [AnchorCount] FROM [websites] WHERE [WebsiteID] = " & websiteID
+            Dim command As OleDbCommand = New OleDbCommand(query, myConnection) 'Get counters from table websites
             Using readerObj As OleDbDataReader = command.ExecuteReader
                 readerObj.Read()
-                picCounter = readerObj.Item("ImageCount") 'Set counters
+                picCounter = readerObj.Item("ImageCount") 'Get counters
                 paraCounter = readerObj.Item("ParagraphCount")
                 headingCounter = readerObj.Item("HeadingCount")
                 anchorCounter = readerObj.Item("AnchorCount")
@@ -1037,14 +1110,34 @@ Public Class Canvas
     End Sub
 
 
+    Sub dbUpdateAnchorLink(ByVal objName, ByVal link) 'Update the file loc for the anchor obj
+        Dim objID = getObjID(objName)
+        Try
+            myConnection.ConnectionString = connectString
+            myConnection.Open() '
+            Dim query As String = "UPDATE [objects] SET [FileLocation] = '" & link & "' WHERE [ObjectID] = " & objID
+
+            'Update the file location with the link passed in whre the object id is the same"
+            Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
+            command.ExecuteNonQuery()
+            command.Dispose()
+            myConnection.Close()
+
+        Catch ex As Exception
+            MsgBox("Error")
+            Exit Sub
+        End Try
+    End Sub
+
+
     Sub dbUpdateCounters() 'If object entered/deleted, change the counters in the  database
 
         Try
             myConnection.ConnectionString = connectString
-            myConnection.Open()
-            Dim query As String = "UPDATE [html] SET [ImageCount] = " & picCounter & ", [ParagraphCount] = " & paraCounter & ", [HeadingCount] = " & headingCounter & ", [AnchorCount] = " & anchorCounter & " WHERE [HtmlID] = " & htmlID
+            myConnection.Open() '
+            Dim query As String = "UPDATE [websites] SET [ImageCount] = " & picCounter & ", [ParagraphCount] = " & paraCounter & ", [HeadingCount] = " & headingCounter & ", [AnchorCount] = " & anchorCounter & " WHERE [WebsiteID] = " & websiteID
 
-            'Changes size or position
+            'Update counters in table "websites"
             Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
             command.ExecuteNonQuery()
             command.Dispose()
@@ -1083,7 +1176,7 @@ Public Class Canvas
 
                 For j = 2 To 10 'Go through the attributes. Start from 2 to ignore ID's
 
-                    Select Case j 'Set the attributes
+                    Select Case j 'Set the attributes of the new dbObj
                         Case 2
                             objStorage(objCounter).objName = (objectArray(i).ItemArray(j)).ToString 'Converting to string because of its data type
                         Case 3
@@ -1161,21 +1254,14 @@ Public Class Canvas
 
                 configureObjects(tempPic, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
 
-            ElseIf objName.Contains("Para") Then
-                Dim tempPara As New RichTextBox  'Instantiates new paragraph
-                tempPara.Name = objName 'Set name
-                tempPara.Text = text 'Set text in textbox
-                tempPara.Font = New Font(tempPara.Font.FontFamily, fontSize) 'Change font size
-                tempPara.ForeColor = fontColour 'Set font colour
-                configureObjects(tempPara, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
+            ElseIf objName.Contains("Para") Or objName.Contains("Heading") Or objName.Contains("Anchor") Then
+                Dim tempText As New RichTextBox  'Instantiates new paragraph/heading/anchor
+                tempText.Name = objName 'Set name
+                tempText.Text = text 'Set text in textbox
+                tempText.Font = New Font(tempText.Font.FontFamily, fontSize) 'Change font size
+                tempText.ForeColor = fontColour 'Set font colour
+                configureObjects(tempText, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
 
-            ElseIf objName.Contains("Heading") Then
-                Dim tempHeading As New RichTextBox  'Instantiates new paragraph
-                tempHeading.Name = objName 'Set name
-                tempHeading.Font = New Font(tempHeading.Font.FontFamily, fontSize) 'Change font size
-                tempHeading.Text = text 'Set text in textbox
-                tempHeading.ForeColor = fontColour 'Set font colour
-                configureObjects(tempHeading, False, locX, locY, sizeX, sizeY) 'Add attributes and handlers
             End If
 
             If locX >= canvasPnl.Location.X And locY >= canvasPnl.Location.Y Then 'If object is on the canvas panel
@@ -1215,10 +1301,11 @@ Public Class Canvas
         For i = 0 To htmlContents.count() - 1 'Go through html list
             If htmlContents(i).contains("link rel='icon") Then 'If its the icon 
 
-                Dim imageSelector As OpenFileDialog = New OpenFileDialog 'Make filedialog
-                imageSelector.ShowDialog() 'Show dialog
-                Dim tempFileLocation = imageSelector.FileName 'location of file
-                imageSelector.Dispose() 'Delete filedialog
+                Dim tempFileLocation As String = getImage() 'ask for the user for an image and then copy it into the assets folder and return the file location
+                If tempFileLocation.Length = 0 Then 'If no image selected, exit sub
+                    closeAllFiles() 'Close all files
+                    Exit Sub 'Dont continue with sub
+                End If
 
                 htmlContents(i) = "<link rel='icon' href='" & tempFileLocation & "' type='image/x-icon>'" 'Set the title to page name
                 Exit For 'Stop looping because text changed in html
@@ -1304,16 +1391,18 @@ Public Class Canvas
 
     End Sub
 
-    Private Sub ChangeImageToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ChangeImageToolStripMenuItem.Click 'Change image in html and db
+    Private Sub ChangeImageToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ChangeImageToolStripMenuItem.Click 'Change image in html and db, called when they click "change image" when right clicking the object
         Dim currentObj = sender.GetCurrentParent().SourceControl 'Get the object that is clicked
         Dim objectName = currentObj.Name
 
-        Dim imageSelector As OpenFileDialog = New OpenFileDialog 'Show file selector
-        imageSelector.ShowDialog()
-        Dim tempFileLocation = imageSelector.FileName 'get filelocation
+        Dim tempFileLocation = getImage() 'Show them file dialog and then return file location of image they choose
+
+        If tempFileLocation.Length = 0 Then 'If they didnt choose an image
+            Exit Sub 'Dont continue 
+        End If
 
         currentObj.Load(tempFileLocation) 'Set the pic to what they choose
-        imageSelector.Dispose()
+
 
         Dim htmlContents = readAllHTML()
         For i = 0 To htmlContents.count() - 1 'Go through html list
@@ -1328,6 +1417,32 @@ Public Class Canvas
 
         writeAllHtml(htmlContents)
         dbChangeObjInfo(currentObj, "Image")
+    End Sub
+
+    Private Sub ChangeAnchorLinkToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ChangeAnchorLinkToolStripMenuItem.Click 'Change the link that the anchor redirects to
+        Dim currentObj = sender.GetCurrentParent().SourceControl 'Get the object that is clicked
+        Dim objectName = currentObj.Name
+
+        Dim newLink As String = InputBox("Enter a URL", "Enter URL") 'get input of the new link they want for the anchor
+
+        If newLink.Length = 0 Then 'Presence check, If they did not input anything, stop the sub
+            Exit Sub
+        End If
+
+        Dim htmlContents = readAllHTML()
+        For i = 0 To htmlContents.count() - 1 'Go through html list
+            If htmlContents(i).contains(objectName) Then 'If its the object
+
+                htmlContents(i) = "<a href='" & newLink & "' class='" & objectName & "' target='blank'>" & currentObj.Text & "</a>"
+                'write an image
+
+
+                Exit For 'Stop looping because text changed in html
+            End If
+        Next
+
+        writeAllHtml(htmlContents)
+        dbUpdateAnchorLink(objectName, newLink)
     End Sub
 End Class
 

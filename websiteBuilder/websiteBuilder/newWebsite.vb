@@ -42,9 +42,13 @@ Public Class newWebsite
             connectString = provider & dataFile
             myConnection.ConnectionString = connectString
             myConnection.Open()
-            Dim query As String = "INSERT INTO [websites] ([UserID], [WebsiteName]) VALUES (" _
+            Dim query As String = "INSERT INTO [websites] ([UserID], [WebsiteName], [ImageCount], [ParagraphCount], [HeadingCount], [AnchorCount]) VALUES (" _
                                   & "'" & userID & "'," _
-                                   & "'" & websiteName & "');"
+                                  & "'" & websiteName & "'," _
+                                  & "'" & 0 & "'," _
+                                  & "'" & 0 & "'," _
+                                  & "'" & 0 & "'," _
+                                  & "'" & 0 & "');"
             Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
             command.ExecuteNonQuery()
             command.Dispose()
@@ -70,13 +74,9 @@ Public Class newWebsite
             connectString = provider & dataFile
             myConnection.ConnectionString = connectString
             myConnection.Open()
-            Dim query As String = "INSERT INTO [html] ([WebsiteID], [Filename], [ImageCount], [ParagraphCount], [HeadingCount], [AnchorCount]) VALUES (" _
+            Dim query As String = "INSERT INTO [html] ([WebsiteID], [Filename]) VALUES (" _
                                   & "'" & websiteID & "'," _
-                                  & "'" & pageName & "'," _
-                                  & "'" & 0 & "'," _
-                                  & "'" & 0 & "'," _
-                                  & "'" & 0 & "'," _
-                                  & "'" & 0 & "');"
+                                  & "'" & pageName & "');"
             'Inserting 0's into the counter
             Dim command As OleDbCommand = New OleDbCommand(query, myConnection)
             command.ExecuteNonQuery()

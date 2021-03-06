@@ -50,6 +50,7 @@ Partial Class Canvas
         Me.ChangeFontSizeToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ChangeFontColourToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ChangeImageToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ChangeAnchorLinkToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.toolboxPnl.SuspendLayout()
         CType(Me.trashPic, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.menuStrip.SuspendLayout()
@@ -285,9 +286,9 @@ Partial Class Canvas
         '
         'rightClickMenu
         '
-        Me.rightClickMenu.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ChangeFontSizeToolStripMenuItem, Me.ChangeFontColourToolStripMenuItem, Me.ChangeImageToolStripMenuItem})
+        Me.rightClickMenu.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ChangeFontSizeToolStripMenuItem, Me.ChangeFontColourToolStripMenuItem, Me.ChangeImageToolStripMenuItem, Me.ChangeAnchorLinkToolStripMenuItem})
         Me.rightClickMenu.Name = "rightClickMenu"
-        Me.rightClickMenu.Size = New System.Drawing.Size(178, 92)
+        Me.rightClickMenu.Size = New System.Drawing.Size(178, 114)
         '
         'ChangeFontSizeToolStripMenuItem
         '
@@ -306,6 +307,12 @@ Partial Class Canvas
         Me.ChangeImageToolStripMenuItem.Name = "ChangeImageToolStripMenuItem"
         Me.ChangeImageToolStripMenuItem.Size = New System.Drawing.Size(177, 22)
         Me.ChangeImageToolStripMenuItem.Text = "Change image"
+        '
+        'ChangeAnchorLinkToolStripMenuItem
+        '
+        Me.ChangeAnchorLinkToolStripMenuItem.Name = "ChangeAnchorLinkToolStripMenuItem"
+        Me.ChangeAnchorLinkToolStripMenuItem.Size = New System.Drawing.Size(177, 22)
+        Me.ChangeAnchorLinkToolStripMenuItem.Text = "Change anchor link"
         '
         'Canvas
         '
@@ -360,5 +367,6 @@ Partial Class Canvas
     Friend WithEvents ChangeFontSizeToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ChangeFontColourToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ChangeImageToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ChangeAnchorLinkToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
 
 End Class
