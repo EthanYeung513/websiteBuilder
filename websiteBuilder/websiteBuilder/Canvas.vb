@@ -76,22 +76,17 @@ Public Class Canvas
     Public Sub writeTemplate()  'Writes the HTML and CSS template for new files
         'Writes HTML
         pageWriter.WriteLine("<!DOCTYPE html>") 'Specifies it's a HTML5 document
-        pageWriter.WriteLine("<HTML>") 'Shows it's a html file
-        pageWriter.WriteLine("<Head>") 'Contains information  about the html file
+        pageWriter.WriteLine("<html>") 'Shows it's a html file
+        pageWriter.WriteLine("<head>") 'Contains information  about the html file
         pageWriter.WriteLine("<title>" & pageName & "</title>") 'Set the title to page name
         pageWriter.WriteLine("<link rel='icon' href='' type='image/x-icon>'") 'Set the icon to nothing on creation
         pageWriter.WriteLine("<meta charset='utf-8'>") 'Set character set to utf-8
         pageWriter.WriteLine("<link rel='stylesheet' href='style.css'>")  'Link external CSS
-        pageWriter.WriteLine("</Head>") 'Close head tag
-        pageWriter.WriteLine("<Body>")
+        pageWriter.WriteLine("</head>") 'Close head tag
+        pageWriter.WriteLine("<body>") 'Body tag, where elements go
 
-
-        'For i = 0 To 59     'Leave space for the closing tags of body and html
-        '    pageWriter.WriteLine("")
-        'Next
-        'pageWriter.WriteLine("</body>") 'Close of the body
-        'pageWriter.WriteLine("</HTML>")  'Close of the page
-
+        pageWriter.WriteLine("</body>") 'Close off body and html
+        pageWriter.WriteLine("</html>")
 
 
         'Writes CSS
@@ -100,15 +95,10 @@ Public Class Canvas
         cssWriter.WriteLine("background-color: #ffffff;")
         cssWriter.WriteLine("}")
 
-
-        'body{
-        'font-family: 'Roboto', arial, sans-serif, serif;
-        'background-color: #ffffff;
-        '}
-
         pageWriter.Close()
         cssWriter.Close()
     End Sub
+
 
 
     Sub setLastWorkedOn() 'Update the previous website worked on so it can be loaded
@@ -210,7 +200,7 @@ Public Class Canvas
             'If removeObject(sender) = True Then 'Check if obj on trashcan, if it is, delete. Return true if deleted
             '    Exit Sub 'Dont continue with sub
             'End If
-            writeToHtml(sender) 'Write object to html if on panel
+            writeObject(sender) 'Write object to html if on panel
 
 
         ElseIf resizeMode = True Then 'If resized and on canvas, change the css and db size
@@ -221,7 +211,7 @@ Public Class Canvas
 
             End If
 
-          
+
         End If
 
 
@@ -534,7 +524,7 @@ Public Class Canvas
 
 
 
-  
+
     Private Sub resizeBtn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles resizeBtn.Click 'Allows users to toggle resize mode 
         If resizeMode = True Then   'If resize mode is on, turn it off 
             allModes.Pop()
@@ -588,7 +578,7 @@ Public Class Canvas
 
     End Sub
 
-    Sub writeToHtml(ByVal currentObj) 'Called when the user stops dragging
+    Sub writeObject(ByVal currentObj) 'Called when the user stops dragging
 
         Dim objectName As String = currentObj.Name 'Set the name of the object
 
@@ -617,7 +607,7 @@ Public Class Canvas
                 If objectName.Contains("Pic") Then  'If it's a picturebox
                     Dim picLocation As String = currentObj.ImageLocation  'Get the file location 
 
-                    pageWriter.WriteLine("<img src='" & picLocation & "' class ='" & objectName & "' " & "alt='test'>") 'write an image
+                    writeObjToHtml("<img src='" & picLocation & "' class ='" & objectName & "' " & "alt='test'>") 'write an image
 
 
                 ElseIf objectName.Contains("Para") Then 'If paragraph element
@@ -626,7 +616,7 @@ Public Class Canvas
 
                 ElseIf objectName.Contains("Heading") Then 'If heading element
                     Dim headingType As String = objectName(objectName.Length - 1) 'Get last character, which is the type of heading (1 - 6)
-                    pageWriter.WriteLine("<h" & headingType & " class='" & objectName & "'>" & currentObj.Text & "</h" & headingType & ">")
+                    writeObjToHtml("<h" & headingType & " class='" & objectName & "'>" & currentObj.Text & "</h" & headingType & ">")
 
 
 
@@ -638,13 +628,13 @@ Public Class Canvas
 
 
 
-                    pageWriter.WriteLine("<a href='" & link & "' class='" & objectName & "' target='blank'>" & currentObj.Text & "</a>") 'Write anchor tag
+                    writeObjToHtml("<a href='" & link & "' class='" & objectName & "' target='blank'>" & currentObj.Text & "</a>") 'Write anchor tag
 
                     dbUpdateAnchorLink(objectName, link) 'Update the file location in the db
 
                 End If
 
-            writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY, currentObj.Font.Size) 'Write the class
+                writeToCss(objectName, newSizeX, newSizeY, newLocX, newLocY, currentObj.Font.Size) 'Write the class
 
 
             Else 'Else, that it is on the panel but its already been written in html, it means position has been changed. 
@@ -654,15 +644,37 @@ Public Class Canvas
             End If
 
         Else 'Else, the object is not in the canvas panel, remove the object from html and css
-        onCanvas.Remove(currentObj) 'Remove object from the list
-        dbChangeObjInfo(currentObj, "Location") 'Change position in db, because it is still on the form
-        removeObjFromFiles(objectName) 'Remove from html and css
+            onCanvas.Remove(currentObj) 'Remove object from the list
+            dbChangeObjInfo(currentObj, "Location") 'Change position in db, because it is still on the form
+            removeObjFromFiles(objectName) 'Remove from html and css
 
         End If
         closeAllFiles()
     End Sub
 
+    Sub writeObjToHtml(ByVal htmlLine As String) 'Write new object into html, pass in the line of html 
+        Dim htmlContents = readAllHTML() 'Load html into a list
+        Dim htmlClosePosition As Integer 'The position in the list where the html closing tag appears
+
+        For i = 0 To htmlContents.Count() - 1 'Go through list to find the html close tag
+            If htmlContents(i).contains("</html>") Then 'If closing tag
+                htmlClosePosition = i 'Set the position
+                htmlContents.removeAt(i - 1) 'Removes the body closing tag, which is above the html closing tag
+                htmlContents(i - 1) = htmlLine 'Replaces the html closing tag, because the list is dynamic. Set this line as the new element
+
+                htmlContents.Add("</body>") 'Add in the closing tags, which were previously removed into a new line
+                htmlContents.Add("</html>")
+
+                writeAllHtml(htmlContents) 'Write all changes into html
+                Exit Sub 'Dont continue with sub
+            End If
+        Next
+    End Sub
+
+
     Sub writeToCss(ByVal objectName, ByVal sizeX, ByVal sizeY, ByVal locX, ByVal locY, ByVal fontSize) 'Writing the classes
+        closeAllFiles()
+        cssWriter = My.Computer.FileSystem.OpenTextFileWriter(fileDirectory & "style.css", True)
 
         cssWriter.WriteLine("." & objectName & "{")  'Writing css class, these are the generic properties each obj will have
         cssWriter.WriteLine("left: " & locX & "px;")
