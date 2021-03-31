@@ -4,7 +4,7 @@
 
 
 
-This project will allow users to create websites through a drag and drop system in a windows application. 
+This project allows users to create and design websites via an intuitive drag and drop system.
 
 #### Technologies
 Visual basic 
