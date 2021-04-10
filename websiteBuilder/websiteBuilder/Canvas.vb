@@ -225,9 +225,24 @@ Public Class Canvas
     Private Sub MyTextChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles createdObj.TextChanged 'If text changed on canvas
         If onCanvas.Contains(sender) Then 'If panel contains the object
             htmlTextChange(sender) 'Change the text in html
+            cssChangeSize(sender) 'Change size in css
         End If
 
+
+
+        Dim tempFont = sender.Font
+
+        Dim textLength = sender.Text.Length
+
+        Dim textLines = sender.GetLineFromCharIndex(textLength) + 1
+
+        Dim Margin = sender.Bounds.Height - sender.ClientSize.Height
+
+        sender.Height = TextRenderer.MeasureText(" ", tempFont).Height * textLines + Margin + 2
+
+
         dbChangeObjInfo(sender, "Text") 'Change the text in db
+        dbChangeObjInfo(sender, "Size") 'Change  size in db
     End Sub
 
 
@@ -273,6 +288,7 @@ Public Class Canvas
             tempPara.Name = "Para" + paraCounter.ToString  'Makes name the photo plus the current picbox counter
 
             tempPara.AutoSize = True
+            tempPara.Font = New Font(tempPara.Font.FontFamily, 11) 'Default para font = 11
 
             checkUiOverflow()  'Check if objects goes outside of panel
             configureObjects(tempPara, True, x, y, 50, 50)  'Adds functionality
@@ -611,7 +627,7 @@ Public Class Canvas
 
 
                 ElseIf objectName.Contains("Para") Then 'If paragraph element
-                    pageWriter.WriteLine("<p class='" & objectName & "'>" & currentObj.Text & "</p>") 'Write the html
+                    writeObjToHtml("<p class='" & objectName & "'>" & currentObj.Text & "</p>") 'Write the html
 
 
                 ElseIf objectName.Contains("Heading") Then 'If heading element
