@@ -131,6 +131,7 @@
     <Compile Include="register.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="syntaxAnalysis.vb" />
     <Compile Include="utilities.vb" />
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,6 @@
 ﻿body{
 font-family: 'Roboto', arial, sans-serif, serif;
-background-color: #ffffff;
+background-color:#FF80C0;
 }
 .Para4{
 left: 340px;
@@ -12,9 +12,9 @@ font-size:8px;
 color: px;
 }
 .Para9{
-left: 401px;
-top: 146px;
-width:50px;
+left: 540px;
+top: 249px;
+width:220px;
 height:24px;
 position: absolute;
 font-size:11px;

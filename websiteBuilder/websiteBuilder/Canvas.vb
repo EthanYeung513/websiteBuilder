@@ -79,7 +79,7 @@ Public Class Canvas
         pageWriter.WriteLine("<html>") 'Shows it's a html file
         pageWriter.WriteLine("<head>") 'Contains information  about the html file
         pageWriter.WriteLine("<title>" & pageName & "</title>") 'Set the title to page name
-        pageWriter.WriteLine("<link rel='icon' href='' type='image/x-icon>'") 'Set the icon to nothing on creation
+        pageWriter.WriteLine("<link rel='icon' href='' type='image/x-icon'>") 'Set the icon to nothing on creation
         pageWriter.WriteLine("<meta charset='utf-8'>") 'Set character set to utf-8
         pageWriter.WriteLine("<link rel='stylesheet' href='style.css'>")  'Link external CSS
         pageWriter.WriteLine("</head>") 'Close head tag
@@ -1335,7 +1335,7 @@ Public Class Canvas
                     Exit Sub 'Dont continue with sub
                 End If
 
-                htmlContents(i) = "<link rel='icon' href='" & tempFileLocation & "' type='image/x-icon>'" 'Set the title to page name
+                htmlContents(i) = "<link rel='icon' href='" & tempFileLocation & "' type='image/x-icon'>" 'Set the title to page name
                 Exit For 'Stop looping because text changed in html
             End If
         Next
@@ -1471,6 +1471,16 @@ Public Class Canvas
 
         writeAllHtml(htmlContents)
         dbUpdateAnchorLink(objectName, newLink)
+    End Sub
+
+
+    'SYNTAX ANALYSIS
+    Private Sub btn_parseHtml_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btn_parseHtml.Click
+        parseHtml()
+    End Sub
+
+    Private Sub btn_parseCss_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btn_parseCss.Click
+        parseCss()
     End Sub
 End Class
 

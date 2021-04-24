@@ -51,6 +51,8 @@ Partial Class Canvas
         Me.ChangeFontColourToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ChangeImageToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ChangeAnchorLinkToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.btn_parseHtml = New System.Windows.Forms.Button()
+        Me.btn_parseCss = New System.Windows.Forms.Button()
         Me.toolboxPnl.SuspendLayout()
         CType(Me.trashPic, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.menuStrip.SuspendLayout()
@@ -80,7 +82,7 @@ Partial Class Canvas
         Me.btn_save.AutoSize = True
         Me.btn_save.BackColor = System.Drawing.Color.LightBlue
         Me.btn_save.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btn_save.Location = New System.Drawing.Point(1188, 606)
+        Me.btn_save.Location = New System.Drawing.Point(1238, 606)
         Me.btn_save.Name = "btn_save"
         Me.btn_save.Size = New System.Drawing.Size(111, 30)
         Me.btn_save.TabIndex = 3
@@ -202,7 +204,7 @@ Partial Class Canvas
         '
         Me.btn_openBrowser.BackColor = System.Drawing.Color.LightBlue
         Me.btn_openBrowser.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btn_openBrowser.Location = New System.Drawing.Point(1013, 606)
+        Me.btn_openBrowser.Location = New System.Drawing.Point(1062, 606)
         Me.btn_openBrowser.Name = "btn_openBrowser"
         Me.btn_openBrowser.Size = New System.Drawing.Size(148, 30)
         Me.btn_openBrowser.TabIndex = 4
@@ -288,7 +290,7 @@ Partial Class Canvas
         '
         Me.rightClickMenu.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ChangeFontSizeToolStripMenuItem, Me.ChangeFontColourToolStripMenuItem, Me.ChangeImageToolStripMenuItem, Me.ChangeAnchorLinkToolStripMenuItem})
         Me.rightClickMenu.Name = "rightClickMenu"
-        Me.rightClickMenu.Size = New System.Drawing.Size(178, 114)
+        Me.rightClickMenu.Size = New System.Drawing.Size(178, 92)
         '
         'ChangeFontSizeToolStripMenuItem
         '
@@ -314,11 +316,35 @@ Partial Class Canvas
         Me.ChangeAnchorLinkToolStripMenuItem.Size = New System.Drawing.Size(177, 22)
         Me.ChangeAnchorLinkToolStripMenuItem.Text = "Change anchor link"
         '
+        'btn_parseHtml
+        '
+        Me.btn_parseHtml.BackColor = System.Drawing.Color.LightBlue
+        Me.btn_parseHtml.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btn_parseHtml.Location = New System.Drawing.Point(295, 606)
+        Me.btn_parseHtml.Name = "btn_parseHtml"
+        Me.btn_parseHtml.Size = New System.Drawing.Size(148, 30)
+        Me.btn_parseHtml.TabIndex = 10
+        Me.btn_parseHtml.Text = "Parse HTML"
+        Me.btn_parseHtml.UseVisualStyleBackColor = False
+        '
+        'btn_parseCss
+        '
+        Me.btn_parseCss.BackColor = System.Drawing.Color.LightBlue
+        Me.btn_parseCss.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btn_parseCss.Location = New System.Drawing.Point(466, 606)
+        Me.btn_parseCss.Name = "btn_parseCss"
+        Me.btn_parseCss.Size = New System.Drawing.Size(148, 30)
+        Me.btn_parseCss.TabIndex = 11
+        Me.btn_parseCss.Text = "Parse CSS"
+        Me.btn_parseCss.UseVisualStyleBackColor = False
+        '
         'Canvas
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1380, 670)
+        Me.Controls.Add(Me.btn_parseCss)
+        Me.Controls.Add(Me.btn_parseHtml)
         Me.Controls.Add(Me.lbl_mainMenu)
         Me.Controls.Add(Me.lbl_pageName)
         Me.Controls.Add(Me.lbl_webName)
@@ -368,5 +394,7 @@ Partial Class Canvas
     Friend WithEvents ChangeFontColourToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ChangeImageToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ChangeAnchorLinkToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents btn_parseHtml As System.Windows.Forms.Button
+    Friend WithEvents btn_parseCss As System.Windows.Forms.Button
 
 End Class
