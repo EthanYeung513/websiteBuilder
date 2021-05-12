@@ -225,7 +225,7 @@ Partial Class Canvas
         '
         Me.lbl_webName.AutoSize = True
         Me.lbl_webName.Font = New System.Drawing.Font("Arial", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lbl_webName.Location = New System.Drawing.Point(1000, 31)
+        Me.lbl_webName.Location = New System.Drawing.Point(1073, 31)
         Me.lbl_webName.Name = "lbl_webName"
         Me.lbl_webName.Size = New System.Drawing.Size(84, 18)
         Me.lbl_webName.TabIndex = 6
@@ -235,7 +235,7 @@ Partial Class Canvas
         '
         Me.lbl_pageName.AutoSize = True
         Me.lbl_pageName.Font = New System.Drawing.Font("Arial", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lbl_pageName.Location = New System.Drawing.Point(1059, 31)
+        Me.lbl_pageName.Location = New System.Drawing.Point(1163, 31)
         Me.lbl_pageName.Name = "lbl_pageName"
         Me.lbl_pageName.Size = New System.Drawing.Size(89, 18)
         Me.lbl_pageName.TabIndex = 7

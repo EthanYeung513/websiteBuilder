@@ -101,6 +101,9 @@ Public Class forgotPass
             Exit Sub
         End Try
 
+        txt_password.Clear()
+        txt_confirmPass.Clear()
+
         MsgBox("Changed password")
         Me.Hide()
         login.Show()

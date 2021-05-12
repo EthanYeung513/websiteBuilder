@@ -54,6 +54,7 @@ Partial Class forgotPass
         Me.txt_confirmPass.Font = New System.Drawing.Font("Arial", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txt_confirmPass.Location = New System.Drawing.Point(97, 341)
         Me.txt_confirmPass.Name = "txt_confirmPass"
+        Me.txt_confirmPass.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
         Me.txt_confirmPass.Size = New System.Drawing.Size(298, 26)
         Me.txt_confirmPass.TabIndex = 26
         '
@@ -86,6 +87,7 @@ Partial Class forgotPass
         Me.txt_password.Font = New System.Drawing.Font("Arial", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txt_password.Location = New System.Drawing.Point(97, 260)
         Me.txt_password.Name = "txt_password"
+        Me.txt_password.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
         Me.txt_password.Size = New System.Drawing.Size(298, 26)
         Me.txt_password.TabIndex = 23
         '

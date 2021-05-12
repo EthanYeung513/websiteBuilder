@@ -820,7 +820,7 @@ Public Class Canvas
                             Exit For
                         End If
                     Next
-                    htmlContents(i) = "<a href='" & link & "' class='" & objectName & "' target='bla    nk'>" & objectText & "</a>"
+                    htmlContents(i) = "<a href='" & link & "' class='" & objectName & "' target='blank'>" & objectText & "</a>"
                 End If
                 Exit For 'Stop looping because text changed in html
             End If
@@ -1380,7 +1380,18 @@ Public Class Canvas
             End If
         Next
 
+        Dim tempFont = currentObj.Font
+
+        Dim textLength = currentObj.Text.Length
+
+        Dim textLines = currentObj.GetLineFromCharIndex(textLength) + 1
+
+        Dim Margin = currentObj.Bounds.Height - currentObj.ClientSize.Height
+
+        currentObj.Height = TextRenderer.MeasureText(" ", tempFont).Height * textLines + Margin + 2
+
         dbChangeObjInfo(currentObj, "FontSize") 'Change font size in db, so it can load properly
+        dbChangeObjInfo(currentObj, "Size") 'Change size in db
         writeAllCss(cssContents) 'Write css contents
     End Sub
 

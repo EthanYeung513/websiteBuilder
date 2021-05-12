@@ -73,7 +73,9 @@ Public Module syntaxAnalysis
 
         For i = 0 To lengthOf 'Go from html opening tag
             tempLine = listOfHtml(i)
-            If multiLineopenCloseTags.ContainsKey(tempLine) Then 'If it is a opening and is a multi line tag
+            If tempLine = "" Then
+
+            ElseIf multiLineopenCloseTags.ContainsKey(tempLine) Then 'If it is a opening and is a multi line tag
                 parseMultiLineOpeningTag(tempLine) 'Parse the opening tag 
 
             ElseIf multiLineopenCloseTags.ContainsValue(tempLine) Then 'If it has closing tag 
@@ -105,6 +107,7 @@ Public Module syntaxAnalysis
         End If
 
         htmlParsed = True 'Signal that html is parsed
+        htmlErrorCount = 0 'reset
     End Sub
 
     Sub parseOneTag(ByVal tempLine, ByVal currentLineIndex) ''Tags that only don't need another closing tag. e.g, <meta charset='utf-8>
@@ -350,7 +353,7 @@ Public Module syntaxAnalysis
             MsgBox(Str(cssErrorCount) & " errors detected")
         End If
         cssParsed = True
-
+        cssErrorCount = 0
     End Sub
 
     Sub parseCssOpeningBodyTag(ByVal tempLine)
