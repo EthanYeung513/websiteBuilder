@@ -25,7 +25,6 @@ HTML elements that can be used: Paragraph, image, anchor, and heading.
 
 Can manipulate attributes of a html/css element such as the colour of the text andthe size of the element  
 
-### Note that the following images are a demonstation and are not the final product
 
 <img src="githubImages/webBuilderDemoCanvas.PNG">
 
